@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -12,22 +12,21 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { inferJsonSchema } from '../utils/schemaInference';
+import { ThemeMode } from '../types/jsonspy';
 import {
   Sparkles,
   Plus,
   Trash2,
-  CheckCircle,
-  XCircle,
   Settings,
   Layers,
   Copy,
   Check,
-  Code,
 } from 'lucide-react';
 
 interface SchemaViewProps {
   content: string;
   onChange: (newContent: string) => void;
+  theme?: ThemeMode;
 }
 
 interface CustomSchemaNodeData extends Record<string, unknown> {
@@ -44,37 +43,35 @@ interface CustomSchemaNodeData extends Record<string, unknown> {
   onSelectProperty?: (key: string) => void;
 }
 
-// Custom Node Renderer for React Flow
 const SchemaNodeComponent: React.FC<{ data: CustomSchemaNodeData }> = ({ data }) => {
   const getTypeColor = (typeStr: string) => {
     switch (typeStr) {
       case 'object':
-        return 'bg-purple-950 text-purple-300 border-purple-700';
+        return 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700';
       case 'array':
-        return 'bg-sky-950 text-sky-300 border-sky-700';
+        return 'bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-700';
       case 'string':
-        return 'bg-emerald-950 text-emerald-300 border-emerald-700';
+        return 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700';
       case 'number':
       case 'integer':
-        return 'bg-amber-950 text-amber-300 border-amber-700';
+        return 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700';
       case 'boolean':
-        return 'bg-pink-950 text-pink-300 border-pink-700';
+        return 'bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 border-pink-300 dark:border-pink-700';
       default:
-        return 'bg-slate-900 text-slate-300 border-slate-700';
+        return 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700';
     }
   };
 
   return (
     <div
       onClick={() => data.onSelectProperty && data.onSelectProperty(data.keyName)}
-      className="bg-slate-900 border-2 border-slate-700 rounded-lg p-3 min-w-[220px] shadow-xl hover:border-brand-500 transition cursor-pointer"
+      className="bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-lg p-3 min-w-[220px] shadow-xl hover:border-brand-500 transition cursor-pointer"
     >
-      <Handle type="target" position={Position.Left} className="w-2.5 h-2.5 bg-brand-400" />
+      <Handle type="target" position={Position.Left} className="w-2.5 h-2.5 bg-brand-500 dark:bg-brand-400" />
 
-      <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-        <span className="font-bold font-mono text-sm text-sky-400">{data.keyName}</span>
+      <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+        <span className="font-bold font-mono text-sm text-sky-600 dark:text-sky-400">{data.keyName}</span>
 
-        {/* Required Badge Toggle */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -82,8 +79,8 @@ const SchemaNodeComponent: React.FC<{ data: CustomSchemaNodeData }> = ({ data })
           }}
           className={`px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase transition ${
             data.required
-              ? 'bg-rose-950 text-rose-400 border border-rose-800'
-              : 'bg-slate-800 text-slate-500 hover:text-slate-300'
+              ? 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-800'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
           }`}
           title="Toggle Required Property"
         >
@@ -101,24 +98,24 @@ const SchemaNodeComponent: React.FC<{ data: CustomSchemaNodeData }> = ({ data })
         </span>
 
         {data.format && (
-          <span className="text-[10px] font-mono text-amber-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
+          <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400 bg-slate-100 dark:bg-slate-950 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-800">
             fmt: {data.format}
           </span>
         )}
       </div>
 
       {data.description && (
-        <p className="mt-2 text-[11px] text-slate-400 line-clamp-2 italic font-sans">
+        <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 italic font-sans">
           {data.description}
         </p>
       )}
 
-      <Handle type="source" position={Position.Right} className="w-2.5 h-2.5 bg-brand-400" />
+      <Handle type="source" position={Position.Right} className="w-2.5 h-2.5 bg-brand-500 dark:bg-brand-400" />
     </div>
   );
 };
 
-export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => {
+export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme = 'dark' }) => {
   const [schemaObj, setSchemaObj] = useState<any>(null);
   const [selectedPropKey, setSelectedPropKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -127,7 +124,6 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  // Parse or infer schema on content change
   useEffect(() => {
     try {
       const parsed = JSON.parse(content);
@@ -144,7 +140,6 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
     }
   }, [content]);
 
-  // Generate React Flow nodes and edges from schema object
   const generateFlowGraph = (schema: any) => {
     const flowNodes: Node[] = [];
     const flowEdges: Edge[] = [];
@@ -153,7 +148,6 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
     const requiredSet = new Set<string>(schema.required || []);
     const props = schema.properties || {};
 
-    // Root Node
     const rootId = 'root';
     flowNodes.push({
       id: rootId,
@@ -286,29 +280,29 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
   const activeProp = selectedPropKey && schemaObj?.properties?.[selectedPropKey];
 
   return (
-    <div className="flex h-full w-full bg-slate-950 text-xs">
+    <div className="flex h-full w-full bg-slate-50 dark:bg-slate-950 text-xs">
       {/* Left Canvas Panel */}
       <div className="flex-1 flex flex-col h-full relative">
         {/* Schema Toolbar */}
-        <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 z-10">
+        <div className="flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-10">
           <div className="flex items-center space-x-3">
-            <span className="flex items-center text-slate-300 font-mono font-semibold">
-              <Layers className="w-4 h-4 mr-1.5 text-purple-400" />
+            <span className="flex items-center text-slate-800 dark:text-slate-300 font-mono font-semibold">
+              <Layers className="w-4 h-4 mr-1.5 text-purple-600 dark:text-purple-400" />
               Visual JSON Schema Designer
             </span>
 
             <button
               onClick={handleInferFreshSchema}
-              className="flex items-center px-2.5 py-1 rounded bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-800 transition shadow-sm"
+              className="flex items-center px-2.5 py-1 rounded bg-purple-100 dark:bg-purple-950 hover:bg-purple-200 dark:hover:bg-purple-900 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-800 transition shadow-sm"
               title="Infer clean JSON Schema from active payload"
             >
-              <Sparkles className="w-3.5 h-3.5 mr-1 text-purple-400" />
+              <Sparkles className="w-3.5 h-3.5 mr-1 text-purple-600 dark:text-purple-400" />
               Infer Schema
             </button>
 
             <button
               onClick={handleAddProperty}
-              className="flex items-center px-2.5 py-1 rounded bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 transition shadow-sm"
+              className="flex items-center px-2.5 py-1 rounded bg-emerald-100 dark:bg-emerald-950 hover:bg-emerald-200 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 transition shadow-sm"
               title="Add property to root schema"
             >
               <Plus className="w-3.5 h-3.5 mr-1" />
@@ -319,11 +313,11 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
           <div className="flex items-center space-x-2">
             <button
               onClick={handleCopySchema}
-              className="flex items-center px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+              className="flex items-center px-2.5 py-1 rounded bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition"
             >
               {copied ? (
                 <>
-                  <Check className="w-3.5 h-3.5 mr-1 text-emerald-400" />
+                  <Check className="w-3.5 h-3.5 mr-1 text-emerald-500 dark:text-emerald-400" />
                   Copied Schema
                 </>
               ) : (
@@ -337,7 +331,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
         </div>
 
         {/* React Flow Canvas */}
-        <div className="flex-1 w-full h-full bg-slate-950">
+        <div className="flex-1 w-full h-full bg-slate-50 dark:bg-slate-950">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -346,23 +340,23 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
             nodeTypes={nodeTypes}
             fitView
           >
-            <Background color="#1e293b" gap={20} size={1} />
+            <Background color={theme === 'dark' ? '#1e293b' : '#cbd5e1'} gap={20} size={1} />
             <Controls />
           </ReactFlow>
         </div>
       </div>
 
       {/* Right Inspector Drawer */}
-      <div className="w-80 border-l border-slate-800 bg-slate-900 p-4 flex flex-col overflow-y-auto">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-          <span className="font-semibold text-slate-200 flex items-center">
-            <Settings className="w-4 h-4 mr-1.5 text-brand-400" />
+      <div className="w-80 border-l border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 p-4 flex flex-col overflow-y-auto">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-4">
+          <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center">
+            <Settings className="w-4 h-4 mr-1.5 text-brand-500 dark:text-brand-400" />
             Property Inspector
           </span>
           {selectedPropKey && (
             <button
               onClick={() => handleDeleteProperty(selectedPropKey)}
-              className="p-1 text-rose-400 hover:bg-rose-950 rounded transition"
+              className="p-1 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950 rounded transition"
               title="Delete Property from Schema"
             >
               <Trash2 className="w-4 h-4" />
@@ -373,21 +367,21 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
         {selectedPropKey && activeProp ? (
           <div className="space-y-4 text-xs">
             <div>
-              <label className="block text-slate-400 mb-1 font-mono">Property Name</label>
+              <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Property Name</label>
               <input
                 type="text"
                 value={selectedPropKey}
                 disabled
-                className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-sky-400 font-mono font-semibold"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-2.5 py-1.5 text-sky-600 dark:text-sky-400 font-mono font-semibold"
               />
             </div>
 
             <div>
-              <label className="block text-slate-400 mb-1 font-mono">Data Type</label>
+              <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Data Type</label>
               <select
                 value={activeProp.type || 'string'}
                 onChange={(e) => handleUpdatePropDetail(selectedPropKey, 'type', e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-slate-200"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200"
               >
                 <option value="string">String</option>
                 <option value="number">Number</option>
@@ -399,7 +393,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
             </div>
 
             <div>
-              <label className="block text-slate-400 mb-1 font-mono">Description</label>
+              <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Description</label>
               <textarea
                 rows={3}
                 value={activeProp.description || ''}
@@ -407,18 +401,18 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
                   handleUpdatePropDetail(selectedPropKey, 'description', e.target.value)
                 }
                 placeholder="Enter documentation or property purpose..."
-                className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-slate-300 focus:outline-none focus:border-brand-500"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded p-2 text-slate-800 dark:text-slate-300 focus:outline-none focus:border-brand-500"
               />
             </div>
 
             <div>
-              <label className="block text-slate-400 mb-1 font-mono">Format (String)</label>
+              <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Format (String)</label>
               <select
                 value={activeProp.format || ''}
                 onChange={(e) =>
                   handleUpdatePropDetail(selectedPropKey, 'format', e.target.value || undefined)
                 }
-                className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-slate-200"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200"
               >
                 <option value="">None</option>
                 <option value="email">Email</option>
@@ -432,7 +426,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
             {activeProp.type === 'number' || activeProp.type === 'integer' ? (
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-slate-400 mb-1 font-mono">Minimum</label>
+                  <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Minimum</label>
                   <input
                     type="number"
                     value={activeProp.minimum ?? ''}
@@ -443,11 +437,11 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
                         e.target.value ? Number(e.target.value) : undefined
                       )
                     }
-                    className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-amber-400 font-mono"
+                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-2 py-1 text-amber-600 dark:text-amber-400 font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 mb-1 font-mono">Maximum</label>
+                  <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Maximum</label>
                   <input
                     type="number"
                     value={activeProp.maximum ?? ''}
@@ -458,14 +452,14 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange }) => 
                         e.target.value ? Number(e.target.value) : undefined
                       )
                     }
-                    className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-amber-400 font-mono"
+                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-2 py-1 text-amber-600 dark:text-amber-400 font-mono"
                   />
                 </div>
               </div>
             ) : null}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center text-center h-64 text-slate-500">
+          <div className="flex flex-col items-center justify-center text-center h-64 text-slate-400 dark:text-slate-500">
             <Layers className="w-8 h-8 mb-2 opacity-50" />
             <p className="text-xs">Select a property node on the graph canvas to inspect & configure constraints.</p>
           </div>

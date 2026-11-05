@@ -1,5 +1,5 @@
 import React from 'react';
-import { DocumentTab, ViewMode } from '../types/jsonspy';
+import { DocumentTab, ThemeMode, ViewMode } from '../types/jsonspy';
 import {
   FileCode,
   Grid,
@@ -14,11 +14,15 @@ import {
   Sparkles,
   AlignLeft,
   FileText,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 interface HeaderProps {
   tabs: DocumentTab[];
   activeTabId: string;
+  theme: ThemeMode;
+  onToggleTheme: () => void;
   onSelectTab: (id: string) => void;
   onAddTab: () => void;
   onCloseTab: (id: string) => void;
@@ -34,6 +38,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   tabs,
   activeTabId,
+  theme,
+  onToggleTheme,
   onSelectTab,
   onAddTab,
   onCloseTab,
@@ -48,68 +54,89 @@ export const Header: React.FC<HeaderProps> = ({
   const activeTab = tabs.find((t) => t.id === activeTabId);
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 flex flex-col select-none z-30">
+    <header className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex flex-col select-none z-30">
       {/* Top Application Bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800/80">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-800/80">
         {/* Logo & Brand */}
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2 bg-gradient-to-r from-brand-600 to-sky-500 px-2.5 py-1 rounded-lg text-white shadow-md">
             <Sparkles className="w-4 h-4" />
             <span className="font-extrabold tracking-tight text-sm font-sans">JSONSpy</span>
           </div>
-          <span className="text-[11px] font-mono text-slate-400 border-l border-slate-700 pl-3 hidden sm:inline-block">
+          <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 border-l border-slate-300 dark:border-slate-700 pl-3 hidden sm:inline-block">
             Enterprise Workbench
           </span>
         </div>
 
         {/* Global Action Toolbar */}
         <div className="flex items-center space-x-2 text-xs">
+          {/* Theme Toggle Button */}
+          <button
+            onClick={onToggleTheme}
+            className="flex items-center px-2.5 py-1.5 rounded bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition"
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          >
+            {theme === 'dark' ? (
+              <>
+                <Sun className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
+                <span>Light Mode</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3.5 h-3.5 mr-1.5 text-indigo-500" />
+                <span>Dark Mode</span>
+              </>
+            )}
+          </button>
+
+          <div className="h-4 w-px bg-slate-300 dark:bg-slate-800 mx-1" />
+
           {/* File Operations */}
           <button
             onClick={onOpenFile}
-            className="flex items-center px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+            className="flex items-center px-2.5 py-1.5 rounded bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition"
             title="Open JSON File from Disk (Ctrl+O)"
           >
-            <FolderOpen className="w-3.5 h-3.5 mr-1.5 text-sky-400" />
+            <FolderOpen className="w-3.5 h-3.5 mr-1.5 text-sky-500 dark:text-sky-400" />
             Open
           </button>
 
           <button
             onClick={onSaveFile}
-            className="flex items-center px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+            className="flex items-center px-2.5 py-1.5 rounded bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition"
             title="Save File (Ctrl+S)"
           >
-            <Save className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
+            <Save className="w-3.5 h-3.5 mr-1.5 text-emerald-500 dark:text-emerald-400" />
             Save
           </button>
 
-          <div className="h-4 w-px bg-slate-800 mx-1" />
+          <div className="h-4 w-px bg-slate-300 dark:bg-slate-800 mx-1" />
 
           {/* Quick Engine Actions */}
           <button
             onClick={onPrettify}
-            className="flex items-center px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+            className="flex items-center px-2.5 py-1.5 rounded bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition"
             title="Prettify / Format JSON (Ctrl+Shift+F)"
           >
-            <AlignLeft className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+            <AlignLeft className="w-3.5 h-3.5 mr-1.5 text-slate-500 dark:text-slate-400" />
             Prettify
           </button>
 
           <button
             onClick={onSmartFix}
-            className="flex items-center px-2.5 py-1.5 rounded bg-amber-950/80 hover:bg-amber-900 text-amber-300 border border-amber-800 transition"
+            className="flex items-center px-2.5 py-1.5 rounded bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 transition"
             title="SmartFix: Automatically repair syntax errors"
           >
-            <Wand2 className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
+            <Wand2 className="w-3.5 h-3.5 mr-1.5 text-amber-600 dark:text-amber-400" />
             SmartFix
           </button>
 
           <button
             onClick={onOpenGenerator}
-            className="flex items-center px-2.5 py-1.5 rounded bg-brand-950 hover:bg-brand-900 text-brand-300 border border-brand-800 transition shadow-sm"
+            className="flex items-center px-2.5 py-1.5 rounded bg-brand-600 hover:bg-brand-500 text-white font-medium shadow-sm transition"
             title="Generate TypeScript, Java, C#, Go, Rust, Python code models"
           >
-            <Code2 className="w-3.5 h-3.5 mr-1.5 text-brand-400" />
+            <Code2 className="w-3.5 h-3.5 mr-1.5" />
             Code Generator
           </button>
 
@@ -119,7 +146,7 @@ export const Header: React.FC<HeaderProps> = ({
               if (e.target.value) onSelectSamplePreset(e.target.value);
             }}
             value=""
-            className="bg-slate-950 border border-slate-800 text-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:border-brand-500"
+            className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:border-brand-500"
           >
             <option value="" disabled>
               Load Sample Preset...
@@ -135,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Tabs & View Switcher Bar */}
-      <div className="flex items-center justify-between px-2 bg-slate-950 border-b border-slate-800">
+      <div className="flex items-center justify-between px-2 bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800">
         {/* Workspace Tabs */}
         <div className="flex items-center space-x-1 overflow-x-auto py-1">
           {tabs.map((tab) => (
@@ -144,14 +171,14 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => onSelectTab(tab.id)}
               className={`group flex items-center px-3 py-1.5 rounded-t-lg border-t border-x text-xs font-medium cursor-pointer transition max-w-[200px] ${
                 tab.id === activeTabId
-                  ? 'bg-slate-900 border-slate-800 text-sky-400 shadow-sm'
-                  : 'bg-slate-950 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                  ? 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-sky-600 dark:text-sky-400 shadow-sm'
+                  : 'bg-slate-200 dark:bg-slate-950 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-900/50'
               }`}
             >
-              <FileText className="w-3.5 h-3.5 mr-1.5 text-slate-500 shrink-0" />
+              <FileText className="w-3.5 h-3.5 mr-1.5 text-slate-400 shrink-0" />
               <span className="truncate font-mono">
                 {tab.title}
-                {tab.isDirty && <span className="text-amber-400 font-bold ml-1">*</span>}
+                {tab.isDirty && <span className="text-amber-500 font-bold ml-1">*</span>}
               </span>
               {tabs.length > 1 && (
                 <button
@@ -159,7 +186,7 @@ export const Header: React.FC<HeaderProps> = ({
                     e.stopPropagation();
                     onCloseTab(tab.id);
                   }}
-                  className="ml-2 p-0.5 opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 hover:bg-slate-800 rounded transition"
+                  className="ml-2 p-0.5 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -169,7 +196,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={onAddTab}
-            className="p-1 text-slate-500 hover:text-slate-200 hover:bg-slate-900 rounded transition"
+            className="p-1 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-900 rounded transition"
             title="New Workspace Tab"
           >
             <Plus className="w-4 h-4" />
@@ -178,13 +205,13 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* View Mode Switcher */}
         {activeTab && (
-          <div className="flex items-center space-x-1 p-1 bg-slate-900 rounded-lg border border-slate-800 my-1">
+          <div className="flex items-center space-x-1 p-1 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-300 dark:border-slate-800 my-1">
             <button
               onClick={() => onSelectView('text')}
               className={`flex items-center px-2.5 py-1 rounded text-xs font-medium transition ${
                 activeTab.selectedView === 'text'
                   ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               <FileCode className="w-3.5 h-3.5 mr-1.5" />
@@ -196,7 +223,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center px-2.5 py-1 rounded text-xs font-medium transition ${
                 activeTab.selectedView === 'grid'
                   ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               <Grid className="w-3.5 h-3.5 mr-1.5" />
@@ -208,7 +235,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center px-2.5 py-1 rounded text-xs font-medium transition ${
                 activeTab.selectedView === 'schema'
                   ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               <Layers className="w-3.5 h-3.5 mr-1.5" />
@@ -220,7 +247,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center px-2.5 py-1 rounded text-xs font-medium transition ${
                 activeTab.selectedView === 'query'
                   ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               <Zap className="w-3.5 h-3.5 mr-1.5" />

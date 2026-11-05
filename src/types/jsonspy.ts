@@ -1,4 +1,5 @@
 export type ViewMode = 'text' | 'grid' | 'schema' | 'query';
+export type ThemeMode = 'dark' | 'light';
 
 export interface AjvValidationError {
   line?: number;

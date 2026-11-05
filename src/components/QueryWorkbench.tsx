@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import jsonata from 'jsonata';
 import Editor from '@monaco-editor/react';
-import { QueryTemplate } from '../types/jsonspy';
+import { QueryTemplate, ThemeMode } from '../types/jsonspy';
 import {
   Play,
   Copy,
   Check,
   Zap,
   Clock,
-  CheckCircle2,
   AlertCircle,
-  HelpCircle,
   Sparkles,
 } from 'lucide-react';
 
 interface QueryWorkbenchProps {
   content: string;
+  theme?: ThemeMode;
 }
 
 const DEFAULT_TEMPLATES: QueryTemplate[] = [
@@ -51,14 +50,13 @@ const DEFAULT_TEMPLATES: QueryTemplate[] = [
   },
 ];
 
-export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content }) => {
+export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content, theme = 'dark' }) => {
   const [expression, setExpression] = useState('items[unitPrice > 100]');
   const [resultText, setResultText] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [executionTimeMs, setExecutionTimeMs] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Execute JSONata query
   const runQuery = (exprToRun: string) => {
     if (!content.trim()) {
       setResultText('// Document is empty');
@@ -90,7 +88,6 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content }) => {
     }
   };
 
-  // Run on expression change
   useEffect(() => {
     runQuery(expression);
   }, [expression, content]);
@@ -105,25 +102,26 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const monacoTheme = theme === 'dark' ? 'jsonspy-dark' : 'vs';
+
   return (
-    <div className="flex flex-col h-full w-full bg-slate-950 text-xs">
+    <div className="flex flex-col h-full w-full bg-slate-50 dark:bg-slate-950 text-xs">
       {/* Query Bar & Templates Header */}
-      <div className="p-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+      <div className="p-3 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
         <div className="flex items-center space-x-3 flex-1">
-          <span className="flex items-center text-slate-200 font-mono font-semibold">
-            <Zap className="w-4 h-4 mr-1.5 text-amber-400" />
+          <span className="flex items-center text-slate-800 dark:text-slate-200 font-mono font-semibold">
+            <Zap className="w-4 h-4 mr-1.5 text-amber-500 dark:text-amber-400" />
             JSONata Transformation & Query Engine
           </span>
 
-          {/* Preset Select Dropdown */}
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+            <Sparkles className="w-3.5 h-3.5 text-brand-500 dark:text-brand-400" />
             <select
               onChange={(e) => {
                 const found = DEFAULT_TEMPLATES.find((t) => t.id === e.target.value);
                 if (found) handleSelectTemplate(found);
               }}
-              className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1 text-slate-300 font-sans focus:outline-none focus:border-brand-500"
+              className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-2.5 py-1 text-slate-700 dark:text-slate-300 font-sans focus:outline-none focus:border-brand-500"
             >
               <option value="">Select Query Template...</option>
               {DEFAULT_TEMPLATES.map((tmpl) => (
@@ -145,18 +143,19 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content }) => {
       </div>
 
       {/* Main Split Grid */}
-      <div className="flex-1 grid grid-cols-2 divide-x divide-slate-800 overflow-hidden">
+      <div className="flex-1 grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-800 overflow-hidden">
         {/* Left Pane: JSONata Expression Input */}
-        <div className="flex flex-col h-full bg-slate-950">
-          <div className="px-4 py-2 bg-slate-900/40 border-b border-slate-800 flex items-center justify-between font-mono text-[11px] text-slate-400">
+        <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950">
+          <div className="px-4 py-2 bg-slate-200/50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between font-mono text-[11px] text-slate-600 dark:text-slate-400">
             <span>JSONata Expression ($)</span>
-            <span className="text-slate-500">Draft 2020-12 Compatible</span>
+            <span className="text-slate-400 dark:text-slate-500">Draft 2020-12 Compatible</span>
           </div>
 
           <div className="flex-1 w-full h-full relative">
             <Editor
               height="100%"
               defaultLanguage="json"
+              theme={monacoTheme}
               value={expression}
               onChange={(val) => setExpression(val || '')}
               options={{
@@ -173,12 +172,12 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content }) => {
         </div>
 
         {/* Right Pane: Query Output Result */}
-        <div className="flex flex-col h-full bg-slate-950">
-          <div className="px-4 py-2 bg-slate-900/40 border-b border-slate-800 flex items-center justify-between font-mono text-[11px] text-slate-400">
+        <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950">
+          <div className="px-4 py-2 bg-slate-200/50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between font-mono text-[11px] text-slate-600 dark:text-slate-400">
             <div className="flex items-center space-x-2">
               <span>Transformation Output</span>
               {executionTimeMs !== null && (
-                <span className="inline-flex items-center text-emerald-400">
+                <span className="inline-flex items-center text-emerald-600 dark:text-emerald-400">
                   <Clock className="w-3 h-3 mr-1" />
                   {executionTimeMs} ms
                 </span>
@@ -187,11 +186,11 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content }) => {
 
             <button
               onClick={handleCopyResult}
-              className="flex items-center px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+              className="flex items-center px-2 py-0.5 rounded bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition"
             >
               {copied ? (
                 <>
-                  <Check className="w-3 h-3 mr-1 text-emerald-400" />
+                  <Check className="w-3 h-3 mr-1 text-emerald-500 dark:text-emerald-400" />
                   Copied
                 </>
               ) : (
@@ -204,12 +203,12 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content }) => {
           </div>
 
           {errorMsg ? (
-            <div className="p-4 bg-rose-950/40 text-rose-300 font-mono text-xs flex flex-col space-y-2">
-              <div className="flex items-center text-rose-400 font-semibold">
+            <div className="p-4 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 font-mono text-xs flex flex-col space-y-2">
+              <div className="flex items-center text-rose-600 dark:text-rose-400 font-semibold">
                 <AlertCircle className="w-4 h-4 mr-2 shrink-0" />
                 Query Evaluation Exception
               </div>
-              <pre className="p-3 bg-slate-950 border border-rose-900/60 rounded text-rose-300 overflow-x-auto">
+              <pre className="p-3 bg-white dark:bg-slate-950 border border-rose-200 dark:border-rose-900/60 rounded text-rose-700 dark:text-rose-300 overflow-x-auto">
                 {errorMsg}
               </pre>
             </div>
@@ -218,6 +217,7 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content }) => {
               <Editor
                 height="100%"
                 defaultLanguage="json"
+                theme={monacoTheme}
                 value={resultText}
                 options={{
                   readOnly: true,

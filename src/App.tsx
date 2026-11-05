@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { DocumentTab, ViewMode } from './types/jsonspy';
+import React, { useState, useEffect } from 'react';
+import { DocumentTab, ThemeMode, ViewMode } from './types/jsonspy';
 import { SAMPLE_DATASETS } from './utils/sampleData';
 import { smartFixJSON } from './utils/smartFix';
 import { openJsonFile, saveJsonFile } from './utils/fileSystem';
@@ -13,6 +13,27 @@ import { GeneratorModal } from './components/GeneratorModal';
 import { StatusBar } from './components/StatusBar';
 
 export const App: React.FC = () => {
+  // Theme state
+  const [theme, setTheme] = useState<ThemeMode>(() => {
+    const saved = localStorage.getItem('jsonspy_theme');
+    return (saved as ThemeMode) || 'dark';
+  });
+
+  // Sync theme class with <html> tag
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('jsonspy_theme', theme);
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   // Initial workspace tabs setup
   const [tabs, setTabs] = useState<DocumentTab[]>([
     {
@@ -30,19 +51,16 @@ export const App: React.FC = () => {
 
   const activeTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
 
-  // Helper to update active tab property
   const updateActiveTab = (updates: Partial<DocumentTab>) => {
     setTabs((prevTabs) =>
       prevTabs.map((tab) => (tab.id === activeTabId ? { ...tab, ...updates } : tab))
     );
   };
 
-  // Content change handler
   const handleContentChange = (newContent: string) => {
     updateActiveTab({ content: newContent, isDirty: true });
   };
 
-  // Add new tab
   const handleAddTab = () => {
     const newId = `tab_${Date.now()}`;
     const newTab: DocumentTab = {
@@ -56,7 +74,6 @@ export const App: React.FC = () => {
     setActiveTabId(newId);
   };
 
-  // Close tab
   const handleCloseTab = (idToClose: string) => {
     if (tabs.length <= 1) return;
     const nextTabs = tabs.filter((t) => t.id !== idToClose);
@@ -66,7 +83,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Open file from disk (Tauri / Browser native)
   const handleOpenFile = async () => {
     const res = await openJsonFile();
     if (res) {
@@ -84,7 +100,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Save file to disk
   const handleSaveFile = async () => {
     if (!activeTab) return;
     const path = await saveJsonFile(activeTab.content, activeTab.filePath, activeTab.title);
@@ -97,7 +112,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Prettify JSON
   const handlePrettify = () => {
     if (!activeTab) return;
     try {
@@ -112,7 +126,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // SmartFix repair
   const handleSmartFix = () => {
     if (!activeTab) return;
     const report = smartFixJSON(activeTab.content);
@@ -121,7 +134,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Select sample preset payload
   const handleSelectSamplePreset = (presetKey: string) => {
     const preset = SAMPLE_DATASETS[presetKey];
     if (preset) {
@@ -139,12 +151,10 @@ export const App: React.FC = () => {
     }
   };
 
-  // Attach custom schema
   const handleAttachSchema = (schemaStr: string) => {
     updateActiveTab({ schemaContent: schemaStr });
   };
 
-  // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'o') {
@@ -167,11 +177,13 @@ export const App: React.FC = () => {
   }, [activeTab]);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-slate-950 overflow-hidden font-sans">
+    <div className="flex flex-col h-screen w-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden font-sans">
       {/* App Header */}
       <Header
         tabs={tabs}
         activeTabId={activeTabId}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
         onSelectTab={setActiveTabId}
         onAddTab={handleAddTab}
         onCloseTab={handleCloseTab}
@@ -193,13 +205,14 @@ export const App: React.FC = () => {
           onSelectSamplePreset={handleSelectSamplePreset}
         />
 
-        <main className="flex-1 h-full w-full overflow-hidden bg-slate-950 relative">
+        <main className="flex-1 h-full w-full overflow-hidden bg-slate-50 dark:bg-slate-950 relative">
           {activeTab.selectedView === 'text' && (
             <TextView
               content={activeTab.content}
               onChange={handleContentChange}
               schemaContent={activeTab.schemaContent}
               onApplySmartFix={(repaired) => handleContentChange(repaired)}
+              theme={theme}
             />
           )}
 
@@ -208,11 +221,11 @@ export const App: React.FC = () => {
           )}
 
           {activeTab.selectedView === 'schema' && (
-            <SchemaView content={activeTab.content} onChange={handleContentChange} />
+            <SchemaView content={activeTab.content} onChange={handleContentChange} theme={theme} />
           )}
 
           {activeTab.selectedView === 'query' && (
-            <QueryWorkbench content={activeTab.content} />
+            <QueryWorkbench content={activeTab.content} theme={theme} />
           )}
         </main>
       </div>
@@ -230,6 +243,7 @@ export const App: React.FC = () => {
         isOpen={isGeneratorOpen}
         onClose={() => setIsGeneratorOpen(false)}
         rawJson={activeTab.content}
+        theme={theme}
       />
     </div>
   );
