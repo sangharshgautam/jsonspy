@@ -164,5 +164,6 @@ jobs:
       project: jsonspy
       hub-repo: sangharshgautam/allure3
       artifact-name: allure-results
+      clean: 'true'
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
