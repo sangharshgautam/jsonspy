@@ -11,7 +11,7 @@ jobs:
   # 1. Build Web SPA Artifacts & Run Unit Tests
   build-web:
     name: Build & Test Web SPA Target
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.2.0
@@ -63,7 +63,7 @@ jobs:
   # 3. Build Ubuntu / Linux Desktop App & Run Rust Tests
   build-linux:
     name: Build Ubuntu / Linux App (.deb / .AppImage)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.2.0
@@ -92,14 +92,14 @@ jobs:
   # 4. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
   build-intellij-plugin:
     name: Build IntelliJ Platform Plugin & Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.2.0
         with:
           node-version: 22
           cache: 'npm'
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '21'
@@ -129,7 +129,7 @@ jobs:
     name: Aggregate Test Results
     needs: [build-web, build-intellij-plugin]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Create Consolidated Allure Directory
         run: mkdir -p unified-allure-results
