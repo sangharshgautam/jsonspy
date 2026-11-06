@@ -11,7 +11,7 @@
         <h4>Key Features:</h4>
         <ul>
             <li><b>Monaco JSON Editor &amp; SmartFix</b>: Enterprise syntax highlighting, folding, and one-click automatic syntax repair for corrupted JSON payloads.</li>
-            <li><b>Ajv Schema Engine</b>: Real-time Draft 2020-12 and Draft-07 JSON Schema validation with inline violation highlights.</li>
+            <li><b>Ajv &amp; NetworkNT Schema Engines</b>: Choose between client-side Ajv (JavaScript) or high-compliance NetworkNT (JVM Java) schema validation.</li>
             <li><b>Visual React Flow Schema Designer</b>: Interactive node-graph editor for inspecting, editing, and inferring JSON schema definitions.</li>
             <li><b>JSONata Transformation Engine</b>: Real-time query execution, data mapping, and numeric aggregation.</li>
             <li><b>Multi-Format Code Generator</b>: One-click TypeScript, Rust, Kotlin, Go, Python, and C# type definition generator.</li>
@@ -32,9 +32,8 @@
         <ul>
             <li><b>Multi-Platform Release</b>: Initial release supporting Tauri v2 Desktop, Web SPA, and IntelliJ Platform IDEs.</li>
             <li><b>Out-of-Process JCEF Support</b>: Native Chromium webview embedding for IntelliJ 2026.2+ (`262+`) with automatic module classloader resolution.</li>
+            <li><b>NetworkNT JVM Validator Support</b>: Added settings configuration to toggle between client-side Ajv and high-compliance NetworkNT JSON Schema validator on the JVM backend.</li>
             <li><b>SmartFix Syntax Recovery</b>: One-click repair for trailing commas, unquoted keys, and single-quoted strings.</li>
-            <li><b>Ajv Validation &amp; Schema Inference</b>: Real-time Draft 2020-12 schema validation and automatic schema inference.</li>
-            <li><b>Interactive Tree Grid &amp; React Flow Canvas</b>: Dual-mode interactive JSON manipulation and visual node graph editing.</li>
         </ul>
     ]]></change-notes>
 
@@ -48,5 +47,7 @@
                     anchor="right"
                     icon="/icons/jsonspy.svg"
                     factoryClass="uk.co.sangharsh.jsonspy.plugin.JsonSpyToolWindowFactory"/>
+        <applicationConfigurable instance="uk.co.sangharsh.jsonspy.plugin.JsonSpySettingsConfigurable"
+                                   id="preferences.jsonspy"/>
     </extensions>
 </idea-plugin>

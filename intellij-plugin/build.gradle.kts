@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("java")
@@ -16,10 +17,20 @@ repositories {
     }
 }
 
+val allureResultsDir = layout.buildDirectory.dir("allure-results")
+
 dependencies {
     intellijPlatform {
         intellijIdeaCommunity("2024.3")
+        testFramework(TestFrameworkType.Platform)
     }
+    implementation("com.networknt:json-schema-validator:1.4.3")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+
+    val allureVersion = "2.35.5"
+    testImplementation(platform("io.qameta.allure:allure-bom:$allureVersion"))
+    testImplementation("io.qameta.allure:allure-jupiter")
 }
 
 java {
@@ -31,6 +42,11 @@ kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_21)
     }
+}
+
+tasks.test {
+    useJUnitPlatform()
+    systemProperty("allure.results.directory", allureResultsDir.get().asFile.absolutePath)
 }
 
 intellijPlatform {

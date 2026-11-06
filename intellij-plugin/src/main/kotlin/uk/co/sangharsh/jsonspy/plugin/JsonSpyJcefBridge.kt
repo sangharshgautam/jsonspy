@@ -23,6 +23,28 @@ object JsonSpyJcefBridge {
             LOG.info("Bridge handling action: $action")
 
             when (action) {
+                "getValidatorEngine" -> {
+                    val engine = JsonSpySettingsState.getInstance().validatorEngine
+                    val res = JsonObject()
+                    res.addProperty("engine", engine)
+                    return JBCefJSQuery.Response(res.toString())
+                }
+
+                "validateSchema" -> {
+                    val content = json.get("content")?.asString ?: "{}"
+                    val schema = json.get("schema")?.asString ?: "{}"
+                    val engine = JsonSpySettingsState.getInstance().validatorEngine
+
+                    if (engine == "networknt") {
+                        val validationResult = NetworkNtValidator.validate(content, schema)
+                        return JBCefJSQuery.Response(validationResult)
+                    } else {
+                        val res = JsonObject()
+                        res.addProperty("engine", "ajv")
+                        return JBCefJSQuery.Response(res.toString())
+                    }
+                }
+
                 "log_error" -> {
                     val message = json.get("message")?.asString ?: "Unknown JS error"
                     val stack = json.get("stack")?.asString ?: ""
