@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:web": "tsc && vite build",
+    "build:intellij": "node scripts/build_intellij_plugin.js",
+    "tauri:build:linux": "tauri build --target x86_64-unknown-linux-gnu",
     "preview": "vite preview",
     "tauri": "tauri"
   },

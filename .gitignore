@@ -26,3 +26,8 @@ Thumbs.db
 
 # Agent & local artifacts
 .artifacts/
+.gradle-dist/
+.gradle-dist-9/
+.gradle-dist-9.0/
+.gradle-dist-8.12/
+intellij-plugin/build/

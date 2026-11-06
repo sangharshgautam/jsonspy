@@ -31,7 +31,7 @@ interface SchemaViewProps {
 
 interface CustomSchemaNodeData extends Record<string, unknown> {
   keyName: string;
-  type: string;
+  type: string | string[];
   required: boolean;
   description?: string;
   format?: string;
@@ -44,6 +44,12 @@ interface CustomSchemaNodeData extends Record<string, unknown> {
 }
 
 const SchemaNodeComponent: React.FC<{ data: CustomSchemaNodeData }> = ({ data }) => {
+  const displayType = Array.isArray(data.type)
+    ? data.type.join(' | ')
+    : typeof data.type === 'string'
+    ? data.type
+    : 'object';
+
   const getTypeColor = (typeStr: string) => {
     switch (typeStr) {
       case 'object':
@@ -62,20 +68,24 @@ const SchemaNodeComponent: React.FC<{ data: CustomSchemaNodeData }> = ({ data })
     }
   };
 
+  const displayName = typeof data.keyName === 'string' ? data.keyName : String(data.keyName ?? 'property');
+  const displayDescription = typeof data.description === 'string' ? data.description : '';
+  const displayFormat = typeof data.format === 'string' ? data.format : '';
+
   return (
     <div
-      onClick={() => data.onSelectProperty && data.onSelectProperty(data.keyName)}
+      onClick={() => data.onSelectProperty && data.onSelectProperty(displayName)}
       className="bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-lg p-3 min-w-[220px] shadow-xl hover:border-brand-500 transition cursor-pointer"
     >
       <Handle type="target" position={Position.Left} className="w-2.5 h-2.5 bg-brand-500 dark:bg-brand-400" />
 
       <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-        <span className="font-bold font-mono text-sm text-sky-600 dark:text-sky-400">{data.keyName}</span>
+        <span className="font-bold font-mono text-sm text-sky-600 dark:text-sky-400">{displayName}</span>
 
         <button
           onClick={(e) => {
             e.stopPropagation();
-            if (data.onToggleRequired) data.onToggleRequired(data.keyName);
+            if (data.onToggleRequired) data.onToggleRequired(displayName);
           }}
           className={`px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase transition ${
             data.required
@@ -91,22 +101,22 @@ const SchemaNodeComponent: React.FC<{ data: CustomSchemaNodeData }> = ({ data })
       <div className="mt-2 flex items-center justify-between">
         <span
           className={`px-2 py-0.5 rounded-full text-xs font-semibold font-mono border ${getTypeColor(
-            data.type
+            displayType
           )}`}
         >
-          {data.type}
+          {displayType}
         </span>
 
-        {data.format && (
+        {displayFormat && (
           <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400 bg-slate-100 dark:bg-slate-950 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-800">
-            fmt: {data.format}
+            fmt: {displayFormat}
           </span>
         )}
       </div>
 
-      {data.description && (
+      {displayDescription && (
         <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 italic font-sans">
-          {data.description}
+          {displayDescription}
         </p>
       )}
 
@@ -145,7 +155,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
     const flowEdges: Edge[] = [];
     let nodeIdSeq = 1;
 
-    const requiredSet = new Set<string>(schema.required || []);
+    const requiredSet = new Set<string>(Array.isArray(schema.required) ? schema.required : []);
     const props = schema.properties || {};
 
     const rootId = 'root';
@@ -154,10 +164,10 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
       type: 'schemaNode',
       position: { x: 50, y: 150 },
       data: {
-        keyName: schema.title || 'RootSchema',
+        keyName: typeof schema.title === 'string' ? schema.title : 'RootSchema',
         type: schema.type || 'object',
         required: true,
-        description: schema.description || 'Root JSON Schema Definition',
+        description: typeof schema.description === 'string' ? schema.description : 'Root JSON Schema Definition',
       } as CustomSchemaNodeData,
     });
 
@@ -174,11 +184,11 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
           keyName: propKey,
           type: propVal.type || 'string',
           required: isReq,
-          description: propVal.description,
-          format: propVal.format,
-          minimum: propVal.minimum,
-          maximum: propVal.maximum,
-          pattern: propVal.pattern,
+          description: typeof propVal.description === 'string' ? propVal.description : undefined,
+          format: typeof propVal.format === 'string' ? propVal.format : undefined,
+          minimum: typeof propVal.minimum === 'number' ? propVal.minimum : undefined,
+          maximum: typeof propVal.maximum === 'number' ? propVal.maximum : undefined,
+          pattern: typeof propVal.pattern === 'string' ? propVal.pattern : undefined,
           onToggleRequired: (keyToToggle: string) => handleToggleRequired(keyToToggle),
           onSelectProperty: (keyToSelect: string) => setSelectedPropKey(keyToSelect),
         } as CustomSchemaNodeData,
@@ -202,7 +212,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
   const handleToggleRequired = (propKey: string) => {
     if (!schemaObj) return;
     const newSchema = JSON.parse(JSON.stringify(schemaObj));
-    let requiredList: string[] = newSchema.required || [];
+    let requiredList: string[] = Array.isArray(newSchema.required) ? newSchema.required : [];
 
     if (requiredList.includes(propKey)) {
       requiredList = requiredList.filter((k) => k !== propKey);
@@ -242,7 +252,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
     if (newSchema.properties && newSchema.properties[propKey]) {
       delete newSchema.properties[propKey];
     }
-    if (newSchema.required) {
+    if (Array.isArray(newSchema.required)) {
       newSchema.required = newSchema.required.filter((k: string) => k !== propKey);
     }
     setSchemaObj(newSchema);
@@ -379,7 +389,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
             <div>
               <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Data Type</label>
               <select
-                value={activeProp.type || 'string'}
+                value={typeof activeProp.type === 'string' ? activeProp.type : 'string'}
                 onChange={(e) => handleUpdatePropDetail(selectedPropKey, 'type', e.target.value)}
                 className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200"
               >
@@ -396,7 +406,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
               <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Description</label>
               <textarea
                 rows={3}
-                value={activeProp.description || ''}
+                value={typeof activeProp.description === 'string' ? activeProp.description : ''}
                 onChange={(e) =>
                   handleUpdatePropDetail(selectedPropKey, 'description', e.target.value)
                 }
@@ -408,7 +418,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
             <div>
               <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Format (String)</label>
               <select
-                value={activeProp.format || ''}
+                value={typeof activeProp.format === 'string' ? activeProp.format : ''}
                 onChange={(e) =>
                   handleUpdatePropDetail(selectedPropKey, 'format', e.target.value || undefined)
                 }
@@ -423,7 +433,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
               </select>
             </div>
 
-            {activeProp.type === 'number' || activeProp.type === 'integer' ? (
+            {(activeProp.type === 'number' || activeProp.type === 'integer') && (
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono">Minimum</label>
@@ -456,7 +466,7 @@ export const SchemaView: React.FC<SchemaViewProps> = ({ content, onChange, theme
                   />
                 </div>
               </div>
-            ) : null}
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center text-center h-64 text-slate-400 dark:text-slate-500">
