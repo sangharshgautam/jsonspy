@@ -20,6 +20,7 @@ dependencies {
     intellijPlatform {
         intellijIdeaCommunity("2024.3")
     }
+    implementation("com.networknt:json-schema-validator:1.4.3")
 }
 
 java {
