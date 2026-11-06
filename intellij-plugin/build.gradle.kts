@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "uk.co.sangharsh.jsonspy.plugin"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -73,7 +73,7 @@ intellijPlatform {
     pluginConfiguration {
         id.set("uk.co.sangharsh.jsonspy.plugin")
         name = "JSONSpy - Enterprise JSON & Schema Workbench"
-        version = "1.0.1"
+        version = "1.0.2"
 
         ideaVersion {
             sinceBuild.set("233")
@@ -104,7 +104,7 @@ intellijPlatform {
         """.trimIndent())
 
         changeNotes.set("""
-            <h3>JSONSpy v1.0.1 Release Notes</h3>
+            <h3>JSONSpy v1.0.2 Release Notes</h3>
             <ul>
             ${getLatestChangelogHtml()}
             </ul>
