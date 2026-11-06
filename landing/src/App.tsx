@@ -20,6 +20,7 @@ import {
   JSONSPY_RELEASES_URL,
   JSONSPY_MS_STORE_URL,
   JSONSPY_SUPPORT_EMAIL,
+  JSONSPY_VSCODE_URL,
   JSONSPY_DOWNLOAD_WINDOWS_MSI,
   JSONSPY_DOWNLOAD_LINUX_DEB,
   JSONSPY_DOWNLOAD_MACOS_DMG,
@@ -117,7 +118,7 @@ export const App: React.FC = () => {
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sky-700 dark:text-sky-400 text-xs font-mono mb-6 shadow-sm">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>v1.0.0 Enterprise Release Now Live</span>
+            <span>v1.0.2 Enterprise Release Now Live</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6 leading-tight">
@@ -125,7 +126,7 @@ export const App: React.FC = () => {
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed font-sans">
-            The ultimate Altova XMLSpy alternative for Web, Tauri Desktop, and IntelliJ Platform IDEs. Built with Monaco Editor, SmartFix syntax recovery, Ajv/NetworkNT schema validation, and Visual React Flow designer.
+            The ultimate Altova XMLSpy alternative for Web, VS Code, Tauri Desktop, and IntelliJ Platform IDEs. Built with Monaco Editor, SmartFix syntax recovery, Ajv/NetworkNT schema validation, and Visual React Flow designer.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
@@ -154,10 +155,10 @@ export const App: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-3">Multi-Platform Ecosystem</h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">Download JSONSpy for your favorite operating system or IDE.</p>
+            <p className="text-slate-600 dark:text-slate-400 text-sm">Download JSONSpy for your favorite operating system, editor, or IDE.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {/* Web */}
             <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-sky-500/50 transition group">
               <div>
@@ -174,6 +175,25 @@ export const App: React.FC = () => {
                 className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs text-center shadow-md transition"
               >
                 Launch Web App
+              </a>
+            </div>
+
+            {/* VS Code Extension */}
+            <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-sky-500/50 transition group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-950 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-600 dark:text-sky-400 mb-4 group-hover:scale-110 transition">
+                  <FileCode className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">VS Code</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">Enterprise JSON & Schema extension for Visual Studio Code.</p>
+              </div>
+              <a
+                href={JSONSPY_VSCODE_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs text-center shadow-md transition"
+              >
+                Install from Marketplace
               </a>
             </div>
 

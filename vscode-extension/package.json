@@ -1,0 +1,45 @@
+{
+  "name": "jsonspy-vscode",
+  "displayName": "JSONSpy - Enterprise JSON & Schema Workbench",
+  "description": "Enterprise JSON editing, validation, transformation, and visual schema modeling workbench for VS Code.",
+  "version": "1.0.2",
+  "publisher": "sangharshgautam",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Formatters",
+    "Visualization"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "jsonspy.openWorkbench",
+        "title": "Open JSONSpy Workbench",
+        "category": "JSONSpy"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "jsonspy.openWorkbench",
+          "when": "resourceExtname == .json",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.3"
+  }
+}

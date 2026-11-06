@@ -4,6 +4,7 @@ export const JSONSPY_RELEASES_URL = 'https://github.com/sangharshgautam/jsonspy/
 export const JSONSPY_DOCS_URL = 'https://github.com/sangharshgautam/jsonspy#readme';
 export const JSONSPY_MS_STORE_URL = 'https://apps.microsoft.com/search?query=jsonspy';
 export const JSONSPY_SUPPORT_EMAIL = 'support.jsonspy@gmail.com';
+export const JSONSPY_VSCODE_URL = 'https://marketplace.visualstudio.com/items?itemName=sangharshgautam.jsonspy-vscode';
 
 // Direct Platform Release Download Links (v1.0.1)
 export const JSONSPY_DOWNLOAD_WINDOWS_MSI = 'https://jsonspy-25s.pages.dev/JSONSpy_1.0.1_x64_en-US.msi';
