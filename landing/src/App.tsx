@@ -14,12 +14,15 @@ import {
   Moon,
 } from 'lucide-react';
 import { JSONSPY_WEB_URL, JSONSPY_GITHUB_URL, JSONSPY_RELEASES_URL } from './constants/links';
+import { PrivacyModal } from './components/PrivacyModal';
 
 export const App: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem('jsonspy_landing_theme');
     return (saved as 'light' | 'dark') || 'light';
   });
+
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -270,7 +273,7 @@ export const App: React.FC = () => {
             <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm">
               <Layers className="w-8 h-8 text-purple-600 dark:text-purple-400 mb-4" />
               <h3 className="font-bold text-slate-900 dark:text-white text-base mb-2">Visual React Flow Schema Designer</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+              <p className="text-slate-400 text-xs leading-relaxed">
                 Interactive node-graph visual designer for inspecting, editing, and inferring robust JSON schema definitions effortlessly.
               </p>
             </div>
@@ -283,11 +286,20 @@ export const App: React.FC = () => {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>© {new Date().getFullYear()} JSONSpy. Open source under Apache 2.0 / MIT.</div>
           <div className="flex items-center space-x-6">
+            <button
+              onClick={() => setIsPrivacyOpen(true)}
+              className="hover:text-slate-900 dark:hover:text-slate-200 transition underline font-medium"
+            >
+              Privacy Policy
+            </button>
             <a href={JSONSPY_GITHUB_URL} target="_blank" rel="noreferrer" className="hover:text-slate-900 dark:hover:text-slate-200 transition">GitHub</a>
             <a href={JSONSPY_RELEASES_URL} target="_blank" rel="noreferrer" className="hover:text-slate-900 dark:hover:text-slate-200 transition">Releases</a>
           </div>
         </div>
       </footer>
+
+      {/* Privacy Policy Modal */}
+      <PrivacyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
     </div>
   );
 };
