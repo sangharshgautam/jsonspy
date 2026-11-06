@@ -6,6 +6,7 @@ node_modules/
 dist/
 dist-ssr/
 src-tauri/target/
+landing/dist/
 *.local
 
 # Logs
@@ -31,3 +32,6 @@ Thumbs.db
 .gradle-dist-9.0/
 .gradle-dist-8.12/
 intellij-plugin/build/
+intellij-plugin/.gradle/
+intellij-plugin/.intellijPlatform/
+test-results/
