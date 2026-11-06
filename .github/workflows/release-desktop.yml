@@ -49,7 +49,7 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'JSONSpy Workbench ${{ github.ref_name }}'
-          releaseBody: 'Enterprise Multi-Platform Release for JSONSpy Workbench.'
+          releaseBodyPath: 'CHANGELOG.md'
           releaseDraft: false
           prerelease: false
 
