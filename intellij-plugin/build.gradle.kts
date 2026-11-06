@@ -66,6 +66,10 @@ fun getLatestChangelogHtml(): String {
 intellijPlatform {
     buildSearchableOptions = false
 
+    publishing {
+        token.set(providers.gradleProperty("publishToken"))
+    }
+
     pluginConfiguration {
         id.set("uk.co.sangharsh.jsonspy.plugin")
         name = "JSONSpy - Enterprise JSON & Schema Workbench"

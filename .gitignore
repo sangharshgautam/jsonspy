@@ -2,6 +2,15 @@
 node_modules/
 .pnpm-store
 
+# Installer & binary bundles
+*.msi
+*.exe
+*.dmg
+*.deb
+*.AppImage
+public/*.msi
+landing/public/*.msi
+
 # Build outputs
 dist/
 dist-ssr/
