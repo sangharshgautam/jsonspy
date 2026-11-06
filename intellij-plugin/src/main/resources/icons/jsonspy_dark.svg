@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
+  <!-- Small 13x13 Tool Window icon (dark theme) -->
+  <path d="M4 2.5C3 2.5 2.5 3 2.5 4V5C2.5 5.5 2 6 1.5 6C2 6 2.5 6.5 2.5 7V8C2.5 9 3 9.5 4 9.5" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M9 2.5C10 2.5 10.5 3 10.5 4V5C10.5 5.5 11 6 11.5 6C11 6 10.5 6.5 10.5 7V8C10.5 9 10 9.5 9 9.5" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round"/>
+  <circle cx="6.5" cy="6" r="1.5" fill="#38BDF8"/>
+</svg>

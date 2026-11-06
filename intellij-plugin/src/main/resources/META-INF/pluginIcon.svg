@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" fill="none">
+  <rect width="80" height="80" rx="18" fill="url(#bg-gradient)"/>
+  <rect x="2" y="2" width="76" height="76" rx="16" stroke="white" stroke-opacity="0.15" stroke-width="2"/>
+
+  <!-- Outer Shield / Hexagonal Workbench Frame -->
+  <path d="M40 16L62 26V54L40 64L18 54V26L40 16Z" stroke="#38BDF8" stroke-width="2.5" stroke-linejoin="round" fill="#0F172A" fill-opacity="0.8"/>
+
+  <!-- JSON Brackets { } -->
+  <path d="M30 32C27 32 26 33.5 26 36V38C26 39.5 25 40 23.5 40C25 40 26 40.5 26 42V44C26 46.5 27 48 30 48" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M50 32C53 32 54 33.5 54 36V38C54 39.5 55 40 56.5 40C55 40 54 40.5 54 42V44C54 46.5 53 48 50 48" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Central Spyglass Lens / Node Accent -->
+  <circle cx="40" cy="40" r="6" fill="#0C8DE9" stroke="#60A5FA" stroke-width="2"/>
+  <circle cx="40" cy="40" r="2" fill="#FFFFFF"/>
+
+  <defs>
+    <linearGradient id="bg-gradient" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0284C7"/>
+      <stop offset="0.5" stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1E1B4B"/>
+    </linearGradient>
+  </defs>
+</svg>
