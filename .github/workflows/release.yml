@@ -1,0 +1,95 @@
+name: Publish GitHub Release (Multi-Platform Installers & Plugin)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # 1. Build and Release Tauri Desktop Apps (Windows, Linux, macOS)
+  release-desktop:
+    name: Build & Release Tauri Desktop (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            args: ''
+          - platform: 'ubuntu-26.04'
+            args: ''
+          - platform: 'macos-latest'
+            args: ''
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4.2.0
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install GTK & WebKit Dependencies (Linux only)
+        if: matrix.platform == 'ubuntu-26.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - run: npm ci
+
+      - name: Generate App Icons
+        run: node scripts/generate_icons.js
+
+      - name: Build & Publish Tauri Release
+        uses: tauri-apps/tauri-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'JSONSpy Workbench ${{ github.ref_name }}'
+          releaseBody: 'Enterprise Multi-Platform Release for JSONSpy Workbench.'
+          releaseDraft: false
+          prerelease: false
+
+  # 2. Build and Attach IntelliJ Plugin Zip
+  release-intellij-plugin:
+    name: Build & Release IntelliJ Plugin
+    needs: release-desktop
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4.2.0
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - run: npm ci
+
+      - name: Bundle Web SPA into IntelliJ Webview
+        run: node scripts/build_intellij_plugin.js
+
+      - name: Build IntelliJ Plugin Distribution
+        run: |
+          cd intellij-plugin
+          chmod +x gradlew || true
+          ./gradlew buildPlugin
+
+      - name: Attach Plugin Zip to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: intellij-plugin/build/distributions/*.zip
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

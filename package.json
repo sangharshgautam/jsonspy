@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:landing": "vite landing",
     "build": "tsc && vite build",
     "build:web": "tsc && vite build",
+    "build:landing": "vite build landing",
     "build:intellij": "node scripts/build_intellij_plugin.js",
     "tauri:build:linux": "tauri build --target x86_64-unknown-linux-gnu",
     "preview": "vite preview",
