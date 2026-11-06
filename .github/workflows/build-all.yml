@@ -107,3 +107,19 @@ jobs:
         with:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/
+
+  # 5. Publish Test Results Report
+  publish:
+    name: Publish Test Results
+    needs: build-intellij-plugin
+    if: always()
+    permissions:
+      actions: read
+      contents: write
+    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+    with:
+      project: jsonspy
+      hub-repo: sangharshgautam/allure3
+      artifact-name: jsonspy-intellij-plugin
+    secrets:
+      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
