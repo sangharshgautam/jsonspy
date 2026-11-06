@@ -57,7 +57,7 @@ jobs:
           releaseDraft: false
           prerelease: false
 
-  # 2. Build and Attach IntelliJ Plugin Zip
+  # 2. Build and Attach IntelliJ Plugin Zip & Publish to JetBrains Marketplace
   release-intellij-plugin:
     name: Build & Release IntelliJ Plugin
     needs: release-desktop
@@ -93,3 +93,11 @@ jobs:
           tag_name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Plugin to JetBrains Marketplace
+        if: env.JETBRAINS_MARKETPLACE_TOKEN != ''
+        env:
+          JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
+        run: |
+          cd intellij-plugin
+          ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN
