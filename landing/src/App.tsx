@@ -288,14 +288,14 @@ export const App: React.FC = () => {
               <ShieldCheck className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mb-4" />
               <h3 className="font-bold text-slate-900 dark:text-white text-base mb-2">Ajv & NetworkNT Schema Validation</h3>
               <p className="text-slate-400 text-xs leading-relaxed">
-                Real-time Draft 2020-12 and Draft-07 JSON Schema validation with instant violation error paths and configurable JVM backend engines.
+                Real-time Draft 2020-12 and Draft-07 JSON Schema validation with inline violation error paths and configurable JVM backend engines.
               </p>
             </div>
 
             <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm">
               <Layers className="w-8 h-8 text-purple-600 dark:text-purple-400 mb-4" />
               <h3 className="font-bold text-slate-900 dark:text-white text-base mb-2">Visual React Flow Schema Designer</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
                 Interactive node-graph visual designer for inspecting, editing, and inferring robust JSON schema definitions effortlessly.
               </p>
             </div>
