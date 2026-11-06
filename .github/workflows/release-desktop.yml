@@ -17,8 +17,11 @@ jobs:
       matrix:
         include:
           - platform: 'windows-latest'
+            artifact_glob: 'src-tauri/target/release/bundle/msi/*.msi'
           - platform: 'ubuntu-26.04'
+            artifact_glob: 'src-tauri/target/release/bundle/deb/*.deb'
           - platform: 'macos-latest'
+            artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -42,16 +45,8 @@ jobs:
       - name: Generate AppIcons
         run: node scripts/generate_icons.js
 
-      - name: Build & Publish Tauri Release
-        uses: tauri-apps/tauri-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'JSONSpy Workbench ${{ github.ref_name }}'
-          releaseBodyPath: 'CHANGELOG.md'
-          releaseDraft: false
-          prerelease: false
+      - name: Build Tauri Desktop App
+        run: npm run tauri build
 
       - name: Copy MSI to Public Folders for Cloudflare Pages
         if: matrix.platform == 'windows-latest'
@@ -65,5 +60,15 @@ jobs:
           git commit -m "chore: auto-attach versioned MSI installer for Cloudflare Pages [skip ci]" || true
           git push origin HEAD:${{ github.ref_name }} || true
         shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Desktop Artifact to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.artifact_glob }}
+          tag_name: ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          name: 'JSONSpy Workbench ${{ github.ref_name }}'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
