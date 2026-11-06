@@ -1,16 +1,20 @@
+import { describe, it, expect } from 'vitest';
 import { smartFixJSON } from './smartFix';
 
-export function runSmartFixTests() {
-  console.log('Running SmartFix TypeScript Unit Tests...');
-  const malformed = "{ name: 'JSONSpy', active: True, }";
-  const report = smartFixJSON(malformed);
+describe('SmartFix JSON Engine', () => {
+  it('should pass valid JSON without changes', () => {
+    const valid = '{"name": "JSONSpy", "version": 1}';
+    const report = smartFixJSON(valid);
+    expect(report.isValidJson).toBe(true);
+    expect(report.fixedCount).toBe(0);
+  });
 
-  if (report.isValidJson) {
-    console.log('✅ SmartFix test passed! Repaired text:', report.repairedText);
-  } else {
-    console.error('❌ SmartFix test failed:', report.errorDetail);
-  }
-}
-
-// Run test if invoked directly
-runSmartFixTests();
+  it('should repair trailing commas, unquoted keys, and single quotes', () => {
+    const malformed = "{ name: 'JSONSpy', active: True, }";
+    const report = smartFixJSON(malformed);
+    expect(report.isValidJson).toBe(true);
+    const parsed = JSON.parse(report.repairedText);
+    expect(parsed.name).toBe('JSONSpy');
+    expect(parsed.active).toBe(true);
+  });
+});

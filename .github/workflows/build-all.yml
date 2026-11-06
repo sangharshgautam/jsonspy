@@ -19,6 +19,8 @@ jobs:
           node-version: 22
           cache: 'npm'
       - run: npm ci
+      - name: Run Web SPA Unit Tests
+        run: npm test
       - run: npm run build
       - name: Upload Web SPA Artifact
         uses: actions/upload-artifact@v4
