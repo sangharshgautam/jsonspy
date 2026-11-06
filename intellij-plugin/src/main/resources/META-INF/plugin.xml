@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>uk.co.sangharsh.jsonspy.plugin</id>
     <name>JSONSpy - Enterprise JSON &amp; Schema Workbench</name>
-    <vendor email="support@jsonspy.dev" url="https://jsonspy.dev">JSONSpy Team</vendor>
+    <vendor email="support.jsonspy@gmail.com" url="https://jsonspy-25s.pages.dev/">JSONSpy Team</vendor>
     <category>Editing Tools</category>
 
     <description><![CDATA[

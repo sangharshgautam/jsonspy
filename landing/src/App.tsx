@@ -12,8 +12,15 @@ import {
   Globe,
   Sun,
   Moon,
+  ShoppingBag,
 } from 'lucide-react';
-import { JSONSPY_WEB_URL, JSONSPY_GITHUB_URL, JSONSPY_RELEASES_URL } from './constants/links';
+import {
+  JSONSPY_WEB_URL,
+  JSONSPY_GITHUB_URL,
+  JSONSPY_RELEASES_URL,
+  JSONSPY_MS_STORE_URL,
+  JSONSPY_SUPPORT_EMAIL,
+} from './constants/links';
 import { PrivacyModal } from './components/PrivacyModal';
 
 export const App: React.FC = () => {
@@ -192,16 +199,27 @@ export const App: React.FC = () => {
                   <Monitor className="w-6 h-6" />
                 </div>
                 <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">Windows</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">Native Tauri v2 executable bundle (.msi / .exe).</p>
+                <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Native Microsoft Store App or Tauri v2 installer (.msi).</p>
               </div>
-              <a
-                href={JSONSPY_RELEASES_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs text-center border border-slate-300 dark:border-slate-700 transition"
-              >
-                Download for Windows
-              </a>
+              <div className="space-y-2">
+                <a
+                  href={JSONSPY_MS_STORE_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full flex items-center justify-center py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs text-center shadow-md transition"
+                >
+                  <ShoppingBag className="w-3.5 h-3.5 mr-1.5" />
+                  Microsoft Store
+                </a>
+                <a
+                  href={JSONSPY_RELEASES_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full block py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-[11px] text-center border border-slate-300 dark:border-slate-700 transition"
+                >
+                  Direct .msi / .exe
+                </a>
+              </div>
             </div>
 
             {/* Linux */}
@@ -292,6 +310,7 @@ export const App: React.FC = () => {
             >
               Privacy Policy
             </button>
+            <a href={`mailto:${JSONSPY_SUPPORT_EMAIL}`} className="hover:text-slate-900 dark:hover:text-slate-200 transition">Support</a>
             <a href={JSONSPY_GITHUB_URL} target="_blank" rel="noreferrer" className="hover:text-slate-900 dark:hover:text-slate-200 transition">GitHub</a>
             <a href={JSONSPY_RELEASES_URL} target="_blank" rel="noreferrer" className="hover:text-slate-900 dark:hover:text-slate-200 transition">Releases</a>
           </div>
