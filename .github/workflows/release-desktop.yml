@@ -39,7 +39,7 @@ jobs:
 
       - run: npm ci
 
-      - name: Generate App Icons
+      - name: Generate AppIcons
         run: node scripts/generate_icons.js
 
       - name: Build & Publish Tauri Release
@@ -52,3 +52,18 @@ jobs:
           releaseBody: 'Enterprise Multi-Platform Release for JSONSpy Workbench.'
           releaseDraft: false
           prerelease: false
+
+      - name: Copy MSI to Public Folders for Cloudflare Pages
+        if: matrix.platform == 'windows-latest'
+        run: |
+          New-Item -ItemType Directory -Force -Path public, landing/public
+          Copy-Item src-tauri\target\release\bundle\msi\*.msi public\ -Force
+          Copy-Item src-tauri\target\release\bundle\msi\*.msi landing\public\ -Force
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add public/*.msi landing/public/*.msi
+          git commit -m "chore: auto-attach versioned MSI installer for Cloudflare Pages [skip ci]" || true
+          git push origin HEAD:${{ github.ref_name }} || true
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
