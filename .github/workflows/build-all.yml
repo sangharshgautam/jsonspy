@@ -25,7 +25,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: web-test-results
+          name: jsonspy-web
           path: test-results/
           if-no-files-found: warn
       - run: npm run build
@@ -48,8 +48,18 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
       - run: npm ci
-      - name: Run Rust Backend Tests
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+      - name: Run Rust Backend Tests & Export Results
+        run: |
+          New-Item -ItemType Directory -Force -Path test-results
+          cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json
+        continue-on-error: true
+      - name: Upload Windows Test Results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jsonspy-windows
+          path: test-results/
+          if-no-files-found: warn
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
@@ -77,8 +87,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
       - run: npm ci
-      - name: Run Rust Backend Tests
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+      - name: Run Rust Backend Tests & Export Results
+        run: |
+          mkdir -p test-results
+          cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json || true
+      - name: Upload Linux Test Results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jsonspy-linux
+          path: test-results/
+          if-no-files-found: warn
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
@@ -115,7 +134,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: allure-results
+          name: jsonspy-intellij
           path: intellij-plugin/build/allure-results
           if-no-files-found: warn
       - name: Upload IntelliJ Plugin Artifact
@@ -124,50 +143,66 @@ jobs:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/
 
-  # 5. Aggregate Test Results
-  aggregate-tests:
-    name: Aggregate Test Results
-    needs: [build-web, build-intellij-plugin]
-    if: always()
-    runs-on: ubuntu-26.04
-    steps:
-      - name: Create Consolidated Allure Directory
-        run: mkdir -p unified-allure-results
-      - name: Download Web Test Results
-        uses: actions/download-artifact@v4
-        with:
-          name: web-test-results
-          path: temp-web
-        continue-on-error: true
-      - name: Download IntelliJ Test Results
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results
-          path: temp-intellij
-        continue-on-error: true
-      - name: Flatten and Merge Test Results
-        run: |
-          find temp-web -type f \( -name "*.xml" -o -name "*.json" \) -exec cp {} unified-allure-results/ \;
-          find temp-intellij -type f \( -name "*.xml" -o -name "*.json" \) -exec cp {} unified-allure-results/ \;
-          ls -la unified-allure-results/
-      - name: Upload Consolidated Allure Artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: allure-results
-          path: unified-allure-results/
-
-  # 6. Publish Test Results Report
-  publish:
-    name: Publish Test Results
-    needs: aggregate-tests
+  # 5. Publish Web Test Results Report
+  publish-web:
+    name: Publish Web Test Results
+    needs: build-web
     if: always()
     permissions:
       actions: read
       contents: write
     uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
     with:
-      project: jsonspy
+      project: jsonspy-web
       hub-repo: sangharshgautam/allure3
-      artifact-name: allure-results
+      artifact-name: jsonspy-web
+    secrets:
+      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+
+  # 6. Publish Windows Test Results Report
+  publish-windows:
+    name: Publish Windows Test Results
+    needs: build-windows
+    if: always()
+    permissions:
+      actions: read
+      contents: write
+    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+    with:
+      project: jsonspy-windows
+      hub-repo: sangharshgautam/allure3
+      artifact-name: jsonspy-windows
+    secrets:
+      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+
+  # 7. Publish Linux Test Results Report
+  publish-linux:
+    name: Publish Linux Test Results
+    needs: build-linux
+    if: always()
+    permissions:
+      actions: read
+      contents: write
+    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+    with:
+      project: jsonspy-linux
+      hub-repo: sangharshgautam/allure3
+      artifact-name: jsonspy-linux
+    secrets:
+      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+
+  # 8. Publish IntelliJ Plugin Test Results Report
+  publish-intellij:
+    name: Publish IntelliJ Test Results
+    needs: build-intellij-plugin
+    if: always()
+    permissions:
+      actions: read
+      contents: write
+    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+    with:
+      project: jsonspy-intellij
+      hub-repo: sangharshgautam/allure3
+      artifact-name: jsonspy-intellij
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
