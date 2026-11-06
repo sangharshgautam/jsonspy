@@ -2,21 +2,21 @@ name: Build All Targets (Web, Windows, Linux, IntelliJ)
 
 on:
   push:
-    branches: [ main, master, feature/* ]
+    branches: [ main, feature/* ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   # 1. Build Web SPA Artifacts
   build-web:
     name: Build Web SPA Target
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4.2.0
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
       - run: npm ci
       - run: npm run build
@@ -32,9 +32,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4.2.0
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -55,9 +55,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4.2.0
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -82,9 +82,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4.2.0
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
       - uses: actions/setup-java@v4
         with:
