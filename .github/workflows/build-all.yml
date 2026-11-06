@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1. Build Web SPA Artifacts
+  # 1. Build Web SPA Artifacts & Run Unit Tests
   build-web:
-    name: Build Web SPA Target
+    name: Build & Test Web SPA Target
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +21,13 @@ jobs:
       - run: npm ci
       - name: Run Web SPA Unit Tests
         run: npm test
+      - name: Upload Web Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-test-results
+          path: test-results/
+          if-no-files-found: warn
       - run: npm run build
       - name: Upload Web SPA Artifact
         uses: actions/upload-artifact@v4
@@ -117,10 +124,37 @@ jobs:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/
 
-  # 5. Publish Test Results Report
+  # 5. Aggregate Test Results
+  aggregate-tests:
+    name: Aggregate Test Results
+    needs: [build-web, build-intellij-plugin]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Consolidated Allure Directory
+        run: mkdir -p unified-allure-results
+      - name: Download Web Test Results
+        uses: actions/download-artifact@v4
+        with:
+          name: web-test-results
+          path: unified-allure-results/web
+        continue-on-error: true
+      - name: Download IntelliJ Test Results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results
+          path: unified-allure-results/intellij
+        continue-on-error: true
+      - name: Upload Consolidated Allure Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: unified-allure-results/
+
+  # 6. Publish Test Results Report
   publish:
     name: Publish Test Results
-    needs: build-intellij-plugin
+    needs: aggregate-tests
     if: always()
     permissions:
       actions: read
