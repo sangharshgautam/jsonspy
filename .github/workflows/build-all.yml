@@ -102,6 +102,13 @@ jobs:
           cd intellij-plugin
           chmod +x gradlew || true
           ./gradlew test buildPlugin
+      - name: Upload Allure test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: intellij-plugin/build/allure-results
+          if-no-files-found: warn
       - name: Upload IntelliJ Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -120,6 +127,6 @@ jobs:
     with:
       project: jsonspy
       hub-repo: sangharshgautam/allure3
-      artifact-name: jsonspy-intellij-plugin
+      artifact-name: allure-results
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
