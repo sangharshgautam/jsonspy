@@ -20,6 +20,10 @@ import {
   JSONSPY_RELEASES_URL,
   JSONSPY_MS_STORE_URL,
   JSONSPY_SUPPORT_EMAIL,
+  JSONSPY_DOWNLOAD_WINDOWS_MSI,
+  JSONSPY_DOWNLOAD_LINUX_DEB,
+  JSONSPY_DOWNLOAD_MACOS_DMG,
+  JSONSPY_DOWNLOAD_INTELLIJ_ZIP,
 } from './constants/links';
 import { PrivacyModal } from './components/PrivacyModal';
 
@@ -183,7 +187,7 @@ export const App: React.FC = () => {
                 <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">For IntelliJ IDEA, Android Studio, WebStorm, and PyCharm.</p>
               </div>
               <a
-                href={JSONSPY_RELEASES_URL}
+                href={JSONSPY_DOWNLOAD_INTELLIJ_ZIP}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs text-center border border-slate-300 dark:border-slate-700 transition"
@@ -212,7 +216,7 @@ export const App: React.FC = () => {
                   Microsoft Store
                 </a>
                 <a
-                  href={JSONSPY_RELEASES_URL}
+                  href={JSONSPY_DOWNLOAD_WINDOWS_MSI}
                   target="_blank"
                   rel="noreferrer"
                   className="w-full block py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-[11px] text-center border border-slate-300 dark:border-slate-700 transition"
@@ -232,7 +236,7 @@ export const App: React.FC = () => {
                 <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">Debian package (.deb) and AppImage for Ubuntu/Linux.</p>
               </div>
               <a
-                href={JSONSPY_RELEASES_URL}
+                href={JSONSPY_DOWNLOAD_LINUX_DEB}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs text-center border border-slate-300 dark:border-slate-700 transition"
@@ -251,7 +255,7 @@ export const App: React.FC = () => {
                 <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">Native macOS disk image (.dmg) for Apple Silicon & Intel.</p>
               </div>
               <a
-                href={JSONSPY_RELEASES_URL}
+                href={JSONSPY_DOWNLOAD_MACOS_DMG}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs text-center border border-slate-300 dark:border-slate-700 transition"
