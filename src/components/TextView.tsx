@@ -177,7 +177,7 @@ export const TextView: React.FC<TextViewProps> = ({
 
   const handleTriggerSmartFix = () => {
     const report = smartFixJSON(content);
-    if (report.isValidJson) {
+    if (report.repairedText && report.repairedText !== content) {
       if (onApplySmartFix) {
         onApplySmartFix(report.repairedText);
       } else {

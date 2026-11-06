@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-500: #0c8de9;
+    --brand-600: #0284c7;
+  }
+}

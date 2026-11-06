@@ -17,4 +17,13 @@ describe('SmartFix JSON Engine', () => {
     expect(parsed.name).toBe('JSONSpy');
     expect(parsed.active).toBe(true);
   });
+
+  it('should repair unclosed string values and unquoted string values', () => {
+    const malformed = '{"title": "JSONSpy, "author": Alice}';
+    const report = smartFixJSON(malformed);
+    expect(report.isValidJson).toBe(true);
+    const parsed = JSON.parse(report.repairedText);
+    expect(parsed.title).toBe('JSONSpy');
+    expect(parsed.author).toBe('Alice');
+  });
 });

@@ -49,6 +49,20 @@ tasks.test {
     systemProperty("allure.results.directory", allureResultsDir.get().asFile.absolutePath)
 }
 
+fun getLatestChangelogHtml(): String {
+    val changelog = file("../CHANGELOG.md")
+    if (!changelog.exists()) return "<li>Initial JSONSpy release.</li>"
+
+    val latestSection = changelog.readText().split("## [").getOrNull(1) ?: return ""
+    val markdown = latestSection.substringAfter("]\n").substringBefore("\n## [").trim()
+
+    return markdown
+        .replace(Regex("^### (.*)$", RegexOption.MULTILINE), "<h4>$1</h4>")
+        .replace(Regex("^\\- (.*)$", RegexOption.MULTILINE), "<li>$1</li>")
+        .replace(Regex("\\*\\*([^*]+)\\*\\*"), "<b>$1</b>")
+        .replace(Regex("`([^`]+)`"), "<code>$1</code>")
+}
+
 intellijPlatform {
     buildSearchableOptions = false
 
@@ -88,11 +102,7 @@ intellijPlatform {
         changeNotes.set("""
             <h3>JSONSpy v1.0.0 Release Notes</h3>
             <ul>
-                <li><b>Multi-Platform Release</b>: Initial release supporting Tauri v2 Desktop, Web SPA, and IntelliJ Platform IDEs.</li>
-                <li><b>Out-of-Process JCEF Support</b>: Native Chromium webview embedding for IntelliJ 2026.2+ (`262+`) with automatic module classloader resolution.</li>
-                <li><b>SmartFix Syntax Recovery</b>: One-click repair for trailing commas, unquoted keys, and single-quoted strings.</li>
-                <li><b>Ajv Validation &amp; Schema Inference</b>: Real-time Draft 2020-12 schema validation and automatic schema inference.</li>
-                <li><b>Interactive Tree Grid &amp; React Flow Canvas</b>: Dual-mode interactive JSON manipulation and visual node graph editing.</li>
+            ${getLatestChangelogHtml()}
             </ul>
         """.trimIndent())
     }
