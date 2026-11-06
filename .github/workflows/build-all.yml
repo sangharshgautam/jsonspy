@@ -1,4 +1,4 @@
-name: Build All Targets (Web, Windows, Linux, IntelliJ)
+name: Build All Targets & Run Tests (Web, Windows, Linux, IntelliJ)
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
           name: jsonspy-web-spa
           path: dist/
 
-  # 2. Build Windows Desktop Executable
+  # 2. Build Windows Desktop Executable & Run Rust Tests
   build-windows:
     name: Build Windows Desktop App (.msi / .exe)
     runs-on: windows-latest
@@ -39,6 +39,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
       - run: npm ci
+      - name: Run Rust Backend Tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
@@ -49,7 +51,7 @@ jobs:
           name: jsonspy-windows-desktop
           path: src-tauri/target/release/bundle/
 
-  # 3. Build Ubuntu / Linux Desktop App (.deb / .AppImage)
+  # 3. Build Ubuntu / Linux Desktop App & Run Rust Tests
   build-linux:
     name: Build Ubuntu / Linux App (.deb / .AppImage)
     runs-on: ubuntu-latest
@@ -66,6 +68,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
       - run: npm ci
+      - name: Run Rust Backend Tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
@@ -76,9 +80,9 @@ jobs:
           name: jsonspy-linux-desktop
           path: src-tauri/target/release/bundle/
 
-  # 4. Build IntelliJ Platform Plugin
+  # 4. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
   build-intellij-plugin:
-    name: Build IntelliJ Platform Plugin
+    name: Build IntelliJ Platform Plugin & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -93,11 +97,11 @@ jobs:
       - run: npm ci
       - name: Bundle Web SPA into IntelliJ Webview
         run: node scripts/build_intellij_plugin.js
-      - name: Build IntelliJ Plugin with Gradle Wrapper
+      - name: Run IntelliJ Plugin Tests & Build Plugin
         run: |
           cd intellij-plugin
           chmod +x gradlew || true
-          ./gradlew buildPlugin
+          ./gradlew test buildPlugin
       - name: Upload IntelliJ Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
