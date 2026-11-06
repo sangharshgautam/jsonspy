@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "uk.co.sangharsh.jsonspy.plugin"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -73,7 +73,7 @@ intellijPlatform {
     pluginConfiguration {
         id.set("uk.co.sangharsh.jsonspy.plugin")
         name = "JSONSpy - Enterprise JSON & Schema Workbench"
-        version = "1.0.0"
+        version = "1.0.1"
 
         ideaVersion {
             sinceBuild.set("233")
@@ -87,7 +87,7 @@ intellijPlatform {
             <h4>Key Features:</h4>
             <ul>
                 <li><b>Monaco JSON Editor &amp; SmartFix</b>: Enterprise syntax highlighting, folding, and one-click automatic syntax repair for corrupted JSON payloads.</li>
-                <li><b>Ajv Schema Engine</b>: Real-time Draft 2020-12 and Draft-07 JSON Schema validation with inline violation highlights.</li>
+                <li><b>Ajv &amp; NetworkNT Schema Engines</b>: Choose between client-side Ajv (JavaScript) or high-compliance NetworkNT (JVM Java) schema validation.</li>
                 <li><b>Visual React Flow Schema Designer</b>: Interactive node-graph editor for inspecting, editing, and inferring JSON schema definitions.</li>
                 <li><b>JSONata Transformation Engine</b>: Real-time query execution, data mapping, and numeric aggregation.</li>
                 <li><b>Multi-Format Code Generator</b>: One-click TypeScript, Rust, Kotlin, Go, Python, and C# type definition generator.</li>
@@ -104,7 +104,7 @@ intellijPlatform {
         """.trimIndent())
 
         changeNotes.set("""
-            <h3>JSONSpy v1.0.0 Release Notes</h3>
+            <h3>JSONSpy v1.0.1 Release Notes</h3>
             <ul>
             ${getLatestChangelogHtml()}
             </ul>

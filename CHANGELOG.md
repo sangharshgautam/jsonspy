@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.1] - 2026-11-06
+
+### Added
+- **Multi-Platform Release & Marketplace Automation**:
+  - Modular GitHub Actions release workflows for Desktop (`release-desktop.yml`) and IntelliJ Plugin (`release-intellij.yml`).
+  - Automated JetBrains Marketplace publishing via `./gradlew publishPlugin`.
+  - Microsoft Store direct installation link and Privacy Policy modal on landing page.
+- **NetworkNT JVM Schema Validator**:
+  - Added user settings configuration to toggle between client-side Ajv and JVM backend NetworkNT validation engine.
+- **SmartFix String Quote Recovery**:
+  - Enhanced SmartFix engine to automatically repair unclosed string literals, missing opening quotes, and unquoted string values.
+
 ## [1.0.0] - 2026-11-05
 
 ### Added
