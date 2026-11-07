@@ -47,5 +47,6 @@
                     anchor="right"
                     icon="/icons/jsonspy.svg"
                     factoryClass="uk.co.sangharsh.jsonspy.plugin.JsonSpyToolWindowFactory"/>
+        <errorHandler implementationClass="com.intellij.diagnostic.MarketplaceErrorHandler"/>
     </extensions>
 </idea-plugin>
