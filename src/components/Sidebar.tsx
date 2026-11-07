@@ -25,6 +25,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [schemaDraft, setSchemaDraft] = useState<'draft-07' | 'draft-2020-12'>('draft-2020-12');
+  const [validatorEngine, setValidatorEngine] = useState<string>(() => {
+    return localStorage.getItem('jsonspy_validator_engine') || 'ajv';
+  });
+
+  const handleValidatorChange = (engine: string) => {
+    setValidatorEngine(engine);
+    localStorage.setItem('jsonspy_validator_engine', engine);
+    window.dispatchEvent(new Event('storage'));
+  };
 
   const computeStats = () => {
     const bytes = new Blob([content]).size;
@@ -133,12 +142,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {/* Ajv Schema Validation Engine Panel */}
+        {/* Schema Validation Engine Panel */}
         <div className="space-y-3">
           <span className="font-semibold text-slate-800 dark:text-slate-300 flex items-center">
             <ShieldCheck className="w-4 h-4 mr-1.5 text-purple-600 dark:text-purple-400" />
-            Ajv Schema Validation
+            Schema Validation Engine
           </span>
+
+          <div>
+            <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono text-[11px]">Validator Backend</label>
+            <select
+              value={validatorEngine}
+              onChange={(e) => handleValidatorChange(e.target.value)}
+              className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-sky-600 dark:text-sky-400 font-bold rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500"
+            >
+              <option value="ajv">Ajv (Client-side JS)</option>
+              <option value="networknt">NetworkNT (JVM Java)</option>
+            </select>
+          </div>
 
           <div>
             <label className="block text-slate-500 dark:text-slate-400 mb-1 font-mono text-[11px]">Draft Specification</label>

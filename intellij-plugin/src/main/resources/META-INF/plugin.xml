@@ -28,12 +28,12 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        <h3>JSONSpy v1.0.0 Release Notes</h3>
+        <h3>JSONSpy v1.0.2 Release Notes</h3>
         <ul>
             <li><b>Multi-Platform Release</b>: Initial release supporting Tauri v2 Desktop, Web SPA, and IntelliJ Platform IDEs.</li>
             <li><b>Out-of-Process JCEF Support</b>: Native Chromium webview embedding for IntelliJ 2026.2+ (`262+`) with automatic module classloader resolution.</li>
             <li><b>NetworkNT JVM Validator Support</b>: Added settings configuration to toggle between client-side Ajv and high-compliance NetworkNT JSON Schema validator on the JVM backend.</li>
-            <li><b>SmartFix Syntax Recovery</b>: One-click repair for trailing commas, unquoted keys, and single-quoted strings.</li>
+            <li><b>SmartFix Sync Recovery</b>: One-click repair for trailing commas, unquoted keys, and single-quoted strings.</li>
         </ul>
     ]]></change-notes>
 
@@ -47,7 +47,5 @@
                     anchor="right"
                     icon="/icons/jsonspy.svg"
                     factoryClass="uk.co.sangharsh.jsonspy.plugin.JsonSpyToolWindowFactory"/>
-        <applicationConfigurable instance="uk.co.sangharsh.jsonspy.plugin.JsonSpySettingsConfigurable"
-                                   id="preferences.jsonspy"/>
     </extensions>
 </idea-plugin>

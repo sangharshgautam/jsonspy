@@ -10,7 +10,6 @@ import com.intellij.ui.jcef.JBCefJSQuery
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.handler.CefLoadHandlerAdapter
-import org.cef.handler.CefLoadHandler
 
 object JcefComponentFactory {
     private val LOG = Logger.getInstance(JcefComponentFactory::class.java)
@@ -24,6 +23,16 @@ object JcefComponentFactory {
             }
         } catch (e: Throwable) {
             LOG.warn("Failed to set Registry key ide.browser.jcef.enabled: ${e.message}")
+        }
+
+        try {
+            val gpuKey = Registry.get("ide.browser.jcef.gpu.disable")
+            if (!gpuKey.asBoolean()) {
+                LOG.info("Auto-disabling JCEF GPU acceleration (ide.browser.jcef.gpu.disable = true) to prevent black screen rendering issues")
+                gpuKey.setValue(true)
+            }
+        } catch (e: Throwable) {
+            LOG.warn("Failed to set Registry key ide.browser.jcef.gpu.disable: ${e.message}")
         }
 
         val supported = try {
@@ -70,16 +79,6 @@ object JcefComponentFactory {
             override fun onLoadEnd(browser: CefBrowser?, frame: CefFrame?, httpStatusCode: Int) {
                 LOG.info("JCEF onLoadEnd: url=${frame?.url}, httpStatus=$httpStatusCode")
                 frame?.executeJavaScript(injectionScript, frame.url, 0)
-            }
-
-            override fun onLoadError(
-                browser: CefBrowser?,
-                frame: CefFrame?,
-                errorCode: CefLoadHandler.ErrorCode?,
-                errorText: String?,
-                failedUrl: String?
-            ) {
-                LOG.error("JCEF onLoadError: code=$errorCode, text=$errorText, failedUrl=$failedUrl")
             }
         }, browser.cefBrowser)
 
