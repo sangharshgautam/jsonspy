@@ -7,6 +7,7 @@ import com.intellij.ui.jcef.JBCefApp
 import com.intellij.ui.jcef.JBCefBrowser
 import com.intellij.ui.jcef.JBCefBrowserBase
 import com.intellij.ui.jcef.JBCefJSQuery
+import com.intellij.util.ui.UIUtil
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.handler.CefLoadHandlerAdapter
@@ -58,22 +59,18 @@ object JcefComponentFactory {
             null
         }
 
-        val injectionScript = """
-            window.cefQuery = function(obj) { ${jsQuery.inject("obj.request")} };
-            window.addEventListener('error', function(e) {
-                console.error('[JSONSpy JS Global Error]', e.message, e.filename, e.lineno, e.colno, e.error);
-                try {
-                    window.cefQuery({ request: JSON.stringify({ action: 'log_error', message: e.message, stack: e.error ? e.error.stack : '' }) });
-                } catch(ex) {}
-            });
-            window.addEventListener('unhandledrejection', function(e) {
-                console.error('[JSONSpy JS Unhandled Rejection]', e.reason);
-                try {
-                    window.cefQuery({ request: JSON.stringify({ action: 'log_error', message: 'Unhandled Rejection: ' + e.reason, stack: '' }) });
-                } catch(ex) {}
-            });
-            console.log('[JSONSpy JCEF Bridge Initialized]');
-        """.trimIndent()
+        val isDarkTheme = try {
+            UIUtil.isUnderDarcula()
+        } catch (e: Throwable) {
+            true
+        }
+
+        val injectionScript = "window.cefQuery = function(obj) { " + jsQuery.inject("obj.request") + " };\n" +
+                "document.documentElement.classList.toggle('dark', " + isDarkTheme + ");\n" +
+                "window.addEventListener('error', function(e) {\n" +
+                "    console.error('[JSONSpy JS Global Error]', e.message);\n" +
+                "});\n" +
+                "console.log('[JSONSpy JCEF Bridge Initialized - Theme Dark: " + isDarkTheme + "');"
 
         browser.jbCefClient.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadEnd(browser: CefBrowser?, frame: CefFrame?, httpStatusCode: Int) {
