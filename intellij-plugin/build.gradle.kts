@@ -12,6 +12,7 @@ version = "1.0.2"
 
 repositories {
     mavenCentral()
+    google()
     intellijPlatform {
         defaultRepositories()
     }
@@ -87,7 +88,7 @@ intellijPlatform {
             <h4>Key Features:</h4>
             <ul>
                 <li><b>Monaco JSON Editor &amp; SmartFix</b>: Enterprise syntax highlighting, folding, and one-click automatic syntax repair for corrupted JSON payloads.</li>
-                <li><b>Ajv &amp; NetworkNT Schema Engines</b>: Choose between client-side Ajv (JavaScript) or high-compliance NetworkNT (JVM Java) schema validation.</li>
+                <li><b>Ajv Schema Engine</b>: Real-time Draft 2020-12 and Draft-07 JSON Schema validation with inline violation highlights.</li>
                 <li><b>Visual React Flow Schema Designer</b>: Interactive node-graph editor for inspecting, editing, and inferring JSON schema definitions.</li>
                 <li><b>JSONata Transformation Engine</b>: Real-time query execution, data mapping, and numeric aggregation.</li>
                 <li><b>Multi-Format Code Generator</b>: One-click TypeScript, Rust, Kotlin, Go, Python, and C# type definition generator.</li>
