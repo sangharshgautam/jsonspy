@@ -14,9 +14,9 @@ jobs:
     name: Build & Release IntelliJ Plugin
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
@@ -36,7 +36,7 @@ jobs:
       - name: Bundle Web SPA into IntelliJ Webview
         run: node scripts/build_intellij_plugin.js
 
-      - name: Build IntelliJ Plugin Distribution
+      - name: Build IntelliJ Platform Plugin Distribution
         run: |
           cd intellij-plugin
           chmod +x gradlew || true
