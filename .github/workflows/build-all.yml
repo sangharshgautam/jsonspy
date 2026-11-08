@@ -67,7 +67,7 @@ jobs:
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
-        run: npx @tauri-apps/cli build
+        run: npx tauri build
       - name: Upload Windows Desktop Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -105,7 +105,7 @@ jobs:
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
-        run: npx @tauri-apps/cli build
+        run: npx tauri build
       - name: Upload Linux Desktop Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -138,7 +138,7 @@ jobs:
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
-        run: npx @tauri-apps/cli build
+        run: npx tauri build
       - name: Upload macOS Desktop Artifacts
         uses: actions/upload-artifact@v4
         with:
