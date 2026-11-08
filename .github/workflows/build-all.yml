@@ -1,4 +1,4 @@
-name: Build All Targets & Run Tests (Web, Windows, IntelliJ)
+name: Build All Targets & Run Tests (Web, Windows, Linux, IntelliJ)
 
 on:
   push:
@@ -13,56 +13,37 @@ jobs:
     name: Build & Test Web SPA Target
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.2.0
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
       - run: npm ci
       - name: Run Web SPA Unit Tests
         run: npm test
       - name: Upload Web Test Results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-web
           path: test-results/
           if-no-files-found: warn
       - run: npm run build
       - name: Upload Web SPA Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-web-spa
           path: dist/
-      - name: Deploy Web SPA to Azure Storage ($web container)
-        if: github.ref == 'refs/heads/main' && secrets.AZURE_STORAGE_CONNECTION_STRING != ''
-        uses: azure/CLI@v2
-        with:
-          inlineScript: |
-            az storage blob upload-batch \
-              --destination '$web' \
-              --source dist/ \
-              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
-              --overwrite true
-      - name: Deploy Web SPA to Cloudflare Pages
-        if: github.ref == 'refs/heads/main' && secrets.CLOUDFLARE_API_TOKEN != ''
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: 'jsonspy-25s'
-          directory: 'dist'
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   # 2. Build Windows Desktop Executable & Run Rust Tests
   build-windows:
     name: Build Windows Desktop App (.msi / .exe)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.2.0
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -78,7 +59,7 @@ jobs:
         continue-on-error: true
       - name: Upload Windows Test Results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-windows
           path: test-results/
@@ -86,22 +67,60 @@ jobs:
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
-        run: npm run tauri build
+        run: npx tauri build
       - name: Upload Windows Desktop Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-windows-desktop
           path: src-tauri/target/release/bundle/
 
-  # 3. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
+  # 3. Build Ubuntu / Linux Desktop App & Run Rust Tests
+  build-linux:
+    name: Build Ubuntu / Linux App (.deb / .AppImage)
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install GTK & WebKit Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - run: npm ci
+      - name: Run Rust Backend Tests & Export Results
+        run: |
+          mkdir -p test-results
+          cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json || true
+      - name: Upload Linux Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-linux
+          path: test-results/
+          if-no-files-found: warn
+      - name: Generate App Icons
+        run: node scripts/generate_icons.js
+      - name: Build Tauri Desktop App
+        run: npx tauri build
+      - name: Upload Linux Desktop Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-linux-desktop
+          path: src-tauri/target/release/bundle/
+
+  # 4. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
   build-intellij-plugin:
     name: Build IntelliJ Platform Plugin & Test
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.2.0
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
       - uses: actions/setup-java@v5
         with:
@@ -121,18 +140,18 @@ jobs:
           ./gradlew test buildPlugin
       - name: Upload Allure test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-intellij
           path: intellij-plugin/build/allure-results
           if-no-files-found: warn
       - name: Upload IntelliJ Plugin Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/
 
-  # 4. Publish Web Test Results Report
+  # 5. Publish Web Test Results Report
   publish-web:
     name: Publish Web Test Results
     needs: build-web
@@ -148,7 +167,7 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 5. Publish Windows Test Results Report
+  # 6. Publish Windows Test Results Report
   publish-windows:
     name: Publish Windows Test Results
     needs: build-windows
@@ -164,7 +183,23 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 6. Publish IntelliJ Plugin Test Results Report
+  # 7. Publish Linux Test Results Report
+  publish-linux:
+    name: Publish Linux Test Results
+    needs: build-linux
+    if: always()
+    permissions:
+      actions: read
+      contents: write
+    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+    with:
+      project: jsonspy-linux
+      hub-repo: sangharshgautam/allure3
+      artifact-name: jsonspy-linux
+    secrets:
+      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+
+  # 8. Publish IntelliJ Plugin Test Results Report
   publish-intellij:
     name: Publish IntelliJ Test Results
     needs: build-intellij-plugin

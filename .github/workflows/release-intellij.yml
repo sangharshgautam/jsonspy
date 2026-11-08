@@ -14,11 +14,11 @@ jobs:
     name: Build & Release IntelliJ Plugin
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4.2.0
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
 
       - uses: actions/setup-java@v5
@@ -36,7 +36,7 @@ jobs:
       - name: Bundle Web SPA into IntelliJ Webview
         run: node scripts/build_intellij_plugin.js
 
-      - name: Build IntelliJ Plugin Distribution
+      - name: Build IntelliJ Platform Plugin Distribution
         run: |
           cd intellij-plugin
           chmod +x gradlew || true
@@ -56,4 +56,4 @@ jobs:
           JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
         run: |
           cd intellij-plugin
-          ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN
+          ./gradlew publishPlugin -PpublishToken=$JSONSPY_MARKETPLACE_TOKEN
