@@ -47,6 +47,10 @@ jobs:
           cache: 'npm'
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: 'src-tauri -> target'
       - run: npm ci
       - name: Run Rust Backend Tests & Export Results
         run: |
