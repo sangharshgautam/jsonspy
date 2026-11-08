@@ -24,9 +24,9 @@ jobs:
             artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: 'npm'
@@ -51,7 +51,7 @@ jobs:
         run: node scripts/generate_icons.js
 
       - name: Build Tauri Desktop App
-        run: npm run tauri build
+        run: npx tauri build
 
       - name: Upload MSI to Azure Storage ($web container)
         if: matrix.platform == 'windows-latest' && secrets.AZURE_STORAGE_CONNECTION_STRING != ''
