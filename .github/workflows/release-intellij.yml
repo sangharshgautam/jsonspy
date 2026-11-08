@@ -26,6 +26,11 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-root-directory: intellij-plugin
+
       - run: npm ci
 
       - name: Bundle Web SPA into IntelliJ Webview
