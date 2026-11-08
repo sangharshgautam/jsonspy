@@ -1,4 +1,4 @@
-name: Release Desktop Apps (Windows)
+name: Release Desktop Apps (Windows, Linux, macOS)
 
 on:
   push:
@@ -11,8 +11,18 @@ permissions:
 
 jobs:
   release-desktop:
-    name: Build & Release Tauri Desktop (Windows)
-    runs-on: windows-latest
+    name: Build & Release Tauri Desktop (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            artifact_glob: 'src-tauri/target/release/bundle/msi/*.msi'
+          - platform: 'ubuntu-26.04'
+            artifact_glob: 'src-tauri/target/release/bundle/deb/*.deb'
+          - platform: 'macos-latest'
+            artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
+    runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
 
@@ -29,6 +39,12 @@ jobs:
         with:
           workspaces: 'src-tauri -> target'
 
+      - name: Install GTK & WebKit Dependencies (Linux only)
+        if: matrix.platform == 'ubuntu-26.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
       - run: npm ci
 
       - name: Generate AppIcons
@@ -38,7 +54,7 @@ jobs:
         run: npm run tauri build
 
       - name: Upload MSI to Azure Storage ($web container)
-        if: runner.os == 'Windows'
+        if: matrix.platform == 'windows-latest' && secrets.AZURE_STORAGE_CONNECTION_STRING != ''
         uses: azure/CLI@v2
         with:
           inlineScript: |
@@ -53,7 +69,7 @@ jobs:
       - name: Upload Desktop Artifact to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: 'src-tauri/target/release/bundle/msi/*.msi'
+          files: ${{ matrix.artifact_glob }}
           tag_name: ${{ github.ref_name }}
           body_path: CHANGELOG.md
           name: 'JSONSpy Workbench ${{ github.ref_name }}'

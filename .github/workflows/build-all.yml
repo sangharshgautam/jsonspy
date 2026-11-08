@@ -1,4 +1,4 @@
-name: Build All Targets & Run Tests (Web, Windows, IntelliJ)
+name: Build All Targets & Run Tests (Web, Windows, Linux, macOS, IntelliJ)
 
 on:
   push:
@@ -74,7 +74,78 @@ jobs:
           name: jsonspy-windows-desktop
           path: src-tauri/target/release/bundle/
 
-  # 3. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
+  # 3. Build Ubuntu / Linux Desktop App & Run Rust Tests
+  build-linux:
+    name: Build Ubuntu / Linux App (.deb / .AppImage)
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install GTK & WebKit Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - run: npm ci
+      - name: Run Rust Backend Tests & Export Results
+        run: |
+          mkdir -p test-results
+          cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json || true
+      - name: Upload Linux Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-linux
+          path: test-results/
+          if-no-files-found: warn
+      - name: Generate App Icons
+        run: node scripts/generate_icons.js
+      - name: Build Tauri Desktop App
+        run: npm run tauri build
+      - name: Upload Linux Desktop Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-linux-desktop
+          path: src-tauri/target/release/bundle/
+
+  # 4. Build macOS Desktop App & Run Rust Tests
+  build-macos:
+    name: Build macOS Desktop App (.dmg / .app)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Run Rust Backend Tests & Export Results
+        run: |
+          mkdir -p test-results
+          cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json || true
+      - name: Upload macOS Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-macos
+          path: test-results/
+          if-no-files-found: warn
+      - name: Generate App Icons
+        run: node scripts/generate_icons.js
+      - name: Build Tauri Desktop App
+        run: npm run tauri build
+      - name: Upload macOS Desktop Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-macos-desktop
+          path: src-tauri/target/release/bundle/
+
+  # 5. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
   build-intellij-plugin:
     name: Build IntelliJ Platform Plugin & Test
     runs-on: ubuntu-26.04
@@ -113,7 +184,7 @@ jobs:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/
 
-  # 4. Publish Web Test Results Report
+  # 6. Publish Web Test Results Report
   publish-web:
     name: Publish Web Test Results
     needs: build-web
@@ -129,7 +200,7 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 5. Publish Windows Test Results Report
+  # 7. Publish Windows Test Results Report
   publish-windows:
     name: Publish Windows Test Results
     needs: build-windows
@@ -145,7 +216,39 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 6. Publish IntelliJ Plugin Test Results Report
+  # 8. Publish Linux Test Results Report
+  publish-linux:
+    name: Publish Linux Test Results
+    needs: build-linux
+    if: always()
+    permissions:
+      actions: read
+      contents: write
+    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+    with:
+      project: jsonspy-linux
+      hub-repo: sangharshgautam/allure3
+      artifact-name: jsonspy-linux
+    secrets:
+      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+
+  # 9. Publish macOS Test Results Report
+  publish-macos:
+    name: Publish macOS Test Results
+    needs: build-macos
+    if: always()
+    permissions:
+      actions: read
+      contents: write
+    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+    with:
+      project: jsonspy-macos
+      hub-repo: sangharshgautam/allure3
+      artifact-name: jsonspy-macos
+    secrets:
+      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+
+  # 10. Publish IntelliJ Plugin Test Results Report
   publish-intellij:
     name: Publish IntelliJ Test Results
     needs: build-intellij-plugin
