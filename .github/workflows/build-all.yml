@@ -13,8 +13,8 @@ jobs:
     name: Build & Test Web SPA Target
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -23,14 +23,14 @@ jobs:
         run: npm test
       - name: Upload Web Test Results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-web
           path: test-results/
           if-no-files-found: warn
       - run: npm run build
       - name: Upload Web SPA Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-web-spa
           path: dist/
@@ -40,8 +40,8 @@ jobs:
     name: Build Windows Desktop App (.msi / .exe)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -59,7 +59,7 @@ jobs:
         continue-on-error: true
       - name: Upload Windows Test Results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-windows
           path: test-results/
@@ -67,9 +67,9 @@ jobs:
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
-        run: npx tauri build
+        run: npx @tauri-apps/cli build
       - name: Upload Windows Desktop Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-windows-desktop
           path: src-tauri/target/release/bundle/
@@ -79,8 +79,8 @@ jobs:
     name: Build Ubuntu / Linux App (.deb / .AppImage)
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -97,7 +97,7 @@ jobs:
           cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json || true
       - name: Upload Linux Test Results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-linux
           path: test-results/
@@ -105,9 +105,9 @@ jobs:
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
-        run: npx tauri build
+        run: npx @tauri-apps/cli build
       - name: Upload Linux Desktop Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-linux-desktop
           path: src-tauri/target/release/bundle/
@@ -117,8 +117,8 @@ jobs:
     name: Build macOS Desktop App (.dmg / .app)
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -130,7 +130,7 @@ jobs:
           cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json || true
       - name: Upload macOS Test Results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-macos
           path: test-results/
@@ -138,9 +138,9 @@ jobs:
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
-        run: npx tauri build
+        run: npx @tauri-apps/cli build
       - name: Upload macOS Desktop Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-macos-desktop
           path: src-tauri/target/release/bundle/
@@ -150,8 +150,8 @@ jobs:
     name: Build IntelliJ Platform Plugin & Test
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -173,13 +173,13 @@ jobs:
           ./gradlew test buildPlugin
       - name: Upload Allure test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-intellij
           path: intellij-plugin/build/allure-results
           if-no-files-found: warn
       - name: Upload IntelliJ Plugin Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/

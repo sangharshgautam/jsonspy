@@ -51,7 +51,7 @@ jobs:
         run: node scripts/generate_icons.js
 
       - name: Build Tauri Desktop App
-        run: npx tauri build
+        run: npx @tauri-apps/cli build
 
       - name: Upload MSI to Azure Storage ($web container)
         if: matrix.platform == 'windows-latest' && secrets.AZURE_STORAGE_CONNECTION_STRING != ''
