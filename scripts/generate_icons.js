@@ -24,24 +24,22 @@ function crc32(buf) {
 function makePng(width, height, r, g, b) {
   const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 
-  // IHDR
   const ihdrData = Buffer.alloc(13);
   ihdrData.writeUInt32BE(width, 0);
   ihdrData.writeUInt32BE(height, 4);
-  ihdrData[8] = 8; // Bit depth
-  ihdrData[9] = 6; // Color type RGBA
-  ihdrData[10] = 0; // Compression
-  ihdrData[11] = 0; // Filter
-  ihdrData[12] = 0; // Interlace
+  ihdrData[8] = 8;
+  ihdrData[9] = 6;
+  ihdrData[10] = 0;
+  ihdrData[11] = 0;
+  ihdrData[12] = 0;
 
   const ihdrChunk = makeChunk('IHDR', ihdrData);
 
-  // Raw image data: height rows, each with 1 filter byte + width * 4 RGBA bytes
   const rowSize = 1 + width * 4;
   const rawData = Buffer.alloc(height * rowSize);
   for (let y = 0; y < height; y++) {
     const rowOffset = y * rowSize;
-    rawData[rowOffset] = 0; // None filter
+    rawData[rowOffset] = 0;
     for (let x = 0; x < width; x++) {
       const pixelOffset = rowOffset + 1 + x * 4;
       rawData[pixelOffset] = r;     // Red
@@ -53,8 +51,6 @@ function makePng(width, height, r, g, b) {
 
   const idatData = zlib.deflateSync(rawData);
   const idatChunk = makeChunk('IDAT', idatData);
-
-  // IEND
   const iendChunk = makeChunk('IEND', Buffer.alloc(0));
 
   return Buffer.concat([signature, ihdrChunk, idatChunk, iendChunk]);
@@ -75,25 +71,29 @@ function makeChunk(type, data) {
 
 function makeIco(pngBuf, width, height) {
   const header = Buffer.alloc(6);
-  header.writeUInt16LE(0, 0); // Reserved
-  header.writeUInt16LE(1, 2); // Image type (1 = ICO)
-  header.writeUInt16LE(1, 4); // Number of images
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(1, 4);
 
   const entry = Buffer.alloc(16);
-  entry[0] = width >= 256 ? 0 : width;  // Width
-  entry[1] = height >= 256 ? 0 : height; // Height
-  entry[2] = 0; // Palette size
-  entry[3] = 0; // Reserved
-  entry.writeUInt16LE(1, 4); // Color planes
-  entry.writeUInt16LE(32, 6); // Bits per pixel
-  entry.writeUInt32LE(pngBuf.length, 8); // Size of image data
-  entry.writeUInt32LE(22, 12); // Offset of image data (6 + 16 = 22)
+  entry[0] = width >= 256 ? 0 : width;
+  entry[1] = height >= 256 ? 0 : height;
+  entry[2] = 0;
+  entry[3] = 0;
+  entry.writeUInt16LE(1, 4);
+  entry.writeUInt16LE(32, 6);
+  entry.writeUInt32LE(pngBuf.length, 8);
+  entry.writeUInt32LE(22, 12);
 
   return Buffer.concat([header, entry, pngBuf]);
 }
 
-const png32 = makePng(32, 32, 12, 141, 233); // Brand blue
+const png32 = makePng(32, 32, 12, 141, 233);
 const png128 = makePng(128, 128, 12, 141, 233);
+const png1080 = makePng(1080, 1080, 12, 141, 233);
+const png2160 = makePng(2160, 2160, 12, 141, 233);
+const pngPoster720 = makePng(720, 1080, 12, 141, 233);
+const pngPoster1440 = makePng(1440, 2160, 12, 141, 233);
 const ico = makeIco(png32, 32, 32);
 
 fs.writeFileSync(path.join(iconsDir, '32x32.png'), png32);
@@ -103,4 +103,10 @@ fs.writeFileSync(path.join(iconsDir, 'icon.png'), png128);
 fs.writeFileSync(path.join(iconsDir, 'icon.ico'), ico);
 fs.writeFileSync(path.join(iconsDir, 'icon.icns'), png128);
 
-console.log('Valid PNG and ICO icons generated successfully!');
+// Store 1:1 Box Art & 2:3 Poster Art
+fs.writeFileSync(path.join(iconsDir, 'Store_BoxArt_1080x1080.png'), png1080);
+fs.writeFileSync(path.join(iconsDir, 'Store_BoxArt_2160x2160.png'), png2160);
+fs.writeFileSync(path.join(iconsDir, 'Store_PosterArt_720x1080.png'), pngPoster720);
+fs.writeFileSync(path.join(iconsDir, 'Store_PosterArt_1440x2160.png'), pngPoster1440);
+
+console.log('Valid PNG, ICO, Box Art (1:1), and Poster Art (2:3) generated successfully!');

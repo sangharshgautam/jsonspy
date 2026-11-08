@@ -19,20 +19,6 @@ if (fs.existsSync(pluginWebviewDir)) {
 
 fs.mkdirSync(pluginWebviewDir, { recursive: true });
 
-function copyRecursive(src, dest) {
-  const stats = fs.statSync(src);
-  if (stats.isDirectory()) {
-    if (!fs.existsSync(dest)) fs.mkdirSync(dest);
-    for (const file of fs.readdirSync(src)) {
-      copyRecursive(path.join(src, file), path.join(dest, file));
-    }
-  } else {
-    fs.copyFileSync(src, dest);
-  }
-}
-
-copyRecursive(distDir, pluginWebviewDir);
-
 // Generate single self-contained HTML for JCEF
 let htmlContent = fs.readFileSync(path.join(distDir, 'index.html'), 'utf-8');
 const assetsDir = path.join(distDir, 'assets');
@@ -60,4 +46,4 @@ if (fs.existsSync(assetsDir)) {
 }
 
 fs.writeFileSync(path.join(pluginWebviewDir, 'single_index.html'), htmlContent);
-console.log('Successfully generated self-contained webview/single_index.html for JCEF!');
+console.log('Successfully generated clean, self-contained webview/single_index.html for JCEF!');

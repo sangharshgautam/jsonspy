@@ -16,7 +16,9 @@ export const App: React.FC = () => {
   // Theme state
   const [theme, setTheme] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem('jsonspy_theme');
-    return (saved as ThemeMode) || 'dark';
+    if (saved) return saved as ThemeMode;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefersDark ? 'dark' : 'light';
   });
 
   // Sync theme class with <html> tag

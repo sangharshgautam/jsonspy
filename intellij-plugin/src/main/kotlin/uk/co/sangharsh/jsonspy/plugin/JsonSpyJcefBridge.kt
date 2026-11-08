@@ -23,17 +23,10 @@ object JsonSpyJcefBridge {
             LOG.info("Bridge handling action: $action")
 
             when (action) {
-                "getValidatorEngine" -> {
-                    val engine = JsonSpySettingsState.getInstance().validatorEngine
-                    val res = JsonObject()
-                    res.addProperty("engine", engine)
-                    return JBCefJSQuery.Response(res.toString())
-                }
-
                 "validateSchema" -> {
                     val content = json.get("content")?.asString ?: "{}"
                     val schema = json.get("schema")?.asString ?: "{}"
-                    val engine = JsonSpySettingsState.getInstance().validatorEngine
+                    val engine = json.get("engine")?.asString ?: "ajv"
 
                     if (engine == "networknt") {
                         val validationResult = NetworkNtValidator.validate(content, schema)

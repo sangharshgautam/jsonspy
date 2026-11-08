@@ -34,6 +34,25 @@ jobs:
         with:
           name: jsonspy-web-spa
           path: dist/
+      - name: Deploy Web SPA to Azure Storage ($web container)
+        if: github.ref == 'refs/heads/main' && secrets.AZURE_STORAGE_CONNECTION_STRING != ''
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination '$web' \
+              --source dist/ \
+              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
+              --overwrite true
+      - name: Deploy Web SPA to Cloudflare Pages
+        if: github.ref == 'refs/heads/main' && secrets.CLOUDFLARE_API_TOKEN != ''
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'jsonspy-25s'
+          directory: 'dist'
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   # 2. Build Windows Desktop Executable & Run Rust Tests
   build-windows:
@@ -47,6 +66,10 @@ jobs:
           cache: 'npm'
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: 'src-tauri -> target'
       - run: npm ci
       - name: Run Rust Backend Tests & Export Results
         run: |
@@ -84,6 +107,10 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-root-directory: intellij-plugin
       - run: npm ci
       - name: Bundle Web SPA into IntelliJ Webview
         run: node scripts/build_intellij_plugin.js

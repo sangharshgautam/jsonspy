@@ -114,17 +114,4 @@ intellijPlatform {
 
 tasks.named<org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask>("buildPlugin") {
     archiveBaseName.set("jsonspy-plugin")
-    doFirst {
-        val patchedFile = file("build/patchedPluginXmlFiles/plugin.xml")
-        if (patchedFile.exists()) {
-            var text = patchedFile.readText()
-            if (!text.contains("com.intellij.modules.jcef")) {
-                text = text.replace(
-                    "<depends>com.intellij.modules.platform</depends>",
-                    "<depends>com.intellij.modules.platform</depends>\n  <depends>com.intellij.modules.jcef</depends>"
-                )
-                patchedFile.writeText(text)
-            }
-        }
-    }
 }

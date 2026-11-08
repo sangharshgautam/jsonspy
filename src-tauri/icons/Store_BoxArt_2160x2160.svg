@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2160" height="2160" viewBox="0 0 2160 2160">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#082849"/>
+    </linearGradient>
+
+    <linearGradient id="brand" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c8de9"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="43.2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="2160" height="2160" fill="url(#bg)"/>
+
+  <!-- Subtle Background Grid Pattern -->
+  <g stroke="#1e293b" stroke-width="2" opacity="0.4">
+    <line x1="0" y1="0" x2="0" y2="2160"/><line x1="108" y1="0" x2="108" y2="2160"/><line x1="216" y1="0" x2="216" y2="2160"/><line x1="324" y1="0" x2="324" y2="2160"/><line x1="432" y1="0" x2="432" y2="2160"/><line x1="540" y1="0" x2="540" y2="2160"/><line x1="648" y1="0" x2="648" y2="2160"/><line x1="756" y1="0" x2="756" y2="2160"/><line x1="864" y1="0" x2="864" y2="2160"/><line x1="972" y1="0" x2="972" y2="2160"/><line x1="1080" y1="0" x2="1080" y2="2160"/><line x1="1188" y1="0" x2="1188" y2="2160"/><line x1="1296" y1="0" x2="1296" y2="2160"/><line x1="1404" y1="0" x2="1404" y2="2160"/><line x1="1512" y1="0" x2="1512" y2="2160"/><line x1="1620" y1="0" x2="1620" y2="2160"/><line x1="1728" y1="0" x2="1728" y2="2160"/><line x1="1836" y1="0" x2="1836" y2="2160"/><line x1="1944" y1="0" x2="1944" y2="2160"/><line x1="2052" y1="0" x2="2052" y2="2160"/>
+    <line x1="0" y1="0" x2="2160" y2="0"/><line x1="0" y1="108" x2="2160" y2="108"/><line x1="0" y1="216" x2="2160" y2="216"/><line x1="0" y1="324" x2="2160" y2="324"/><line x1="0" y1="432" x2="2160" y2="432"/><line x1="0" y1="540" x2="2160" y2="540"/><line x1="0" y1="648" x2="2160" y2="648"/><line x1="0" y1="756" x2="2160" y2="756"/><line x1="0" y1="864" x2="2160" y2="864"/><line x1="0" y1="972" x2="2160" y2="972"/><line x1="0" y1="1080" x2="2160" y2="1080"/><line x1="0" y1="1188" x2="2160" y2="1188"/><line x1="0" y1="1296" x2="2160" y2="1296"/><line x1="0" y1="1404" x2="2160" y2="1404"/><line x1="0" y1="1512" x2="2160" y2="1512"/><line x1="0" y1="1620" x2="2160" y2="1620"/><line x1="0" y1="1728" x2="2160" y2="1728"/><line x1="0" y1="1836" x2="2160" y2="1836"/><line x1="0" y1="1944" x2="2160" y2="1944"/><line x1="0" y1="2052" x2="2160" y2="2052"/>
+  </g>
+
+  <!-- Radial Glow Behind Logo -->
+  <circle cx="1080" cy="907.1999999999999" r="907.1999999999999" fill="#0c8de9" opacity="0.25" filter="url(#glow)"/>
+
+  <!-- Logo Icon Badge -->
+  <g transform="translate(702, 529.1999999999999)">
+    <rect width="756" height="756" rx="166.32" fill="url(#brand)"/>
+
+    <!-- Code Brackets { } -->
+    <text x="378" y="514.08" font-family="JetBrains Mono, Arial, sans-serif" font-weight="900" font-size="393.12" fill="#ffffff" text-anchor="middle">{ }</text>
+  </g>
+
+  <!-- Main Title -->
+  <text x="1080" y="1555.2" font-family="Inter, system-ui, Arial, sans-serif" font-weight="900" font-size="172.8" fill="#ffffff" text-anchor="middle" letter-spacing="-1">
+    JSON<tspan fill="#36a9f8">Spy</tspan>
+  </text>
+
+  <!-- Subtitle -->
+  <text x="1080" y="1706.4" font-family="Inter, system-ui, Arial, sans-serif" font-weight="600" font-size="75.60000000000001" fill="#94a3b8" text-anchor="middle" letter-spacing="1">
+    ENTERPRISE WORKBENCH
+  </text>
+</svg>

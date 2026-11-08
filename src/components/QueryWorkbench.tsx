@@ -57,7 +57,7 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content, theme =
   const [executionTimeMs, setExecutionTimeMs] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const runQuery = (exprToRun: string) => {
+  const runQuery = async (exprToRun: string) => {
     if (!content.trim()) {
       setResultText('// Document is empty');
       setErrorMsg(null);
@@ -69,7 +69,8 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ content, theme =
       const start = performance.now();
 
       const evaluator = jsonata(exprToRun);
-      const result = evaluator.evaluate(parsedData);
+      const evaluated = evaluator.evaluate(parsedData);
+      const result = evaluated && typeof (evaluated as any).then === 'function' ? await evaluated : evaluated;
       const end = performance.now();
 
       setExecutionTimeMs(Number((end - start).toFixed(2)));
