@@ -54,6 +54,8 @@ jobs:
         run: npx playwright install-deps
       - name: Run Playwright E2E Tests
         run: npm run test:e2e
+      - name: Merge Test Reports for Allure
+        run: node scripts/merge_junit_reports.js
       - name: Upload Web Test Results
         if: always()
         uses: actions/upload-artifact@v4
