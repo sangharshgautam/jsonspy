@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1. Build Web SPA Artifacts & Run Unit Tests
+  # 1. Build Web SPA Artifacts & Run Unit Tests & Playwright E2E
   build-web:
     name: Build & Test Web SPA Target
     runs-on: ubuntu-26.04
@@ -21,6 +21,10 @@ jobs:
       - run: npm ci
       - name: Run Web SPA Unit Tests
         run: npm test
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Web E2E Tests (Playwright)
+        run: npm run test:e2e
       - name: Upload Web Test Results
         if: always()
         uses: actions/upload-artifact@v7
@@ -34,25 +38,6 @@ jobs:
         with:
           name: jsonspy-web-spa
           path: dist/
-      - name: Deploy Web SPA to Azure Storage ($web container)
-        if: github.ref == 'refs/heads/main' && secrets.AZURE_STORAGE_CONNECTION_STRING != ''
-        uses: azure/CLI@v2
-        with:
-          inlineScript: |
-            az storage blob upload-batch \
-              --destination '$web' \
-              --source dist/ \
-              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
-              --overwrite true
-      - name: Deploy Web SPA to Cloudflare Pages
-        if: github.ref == 'refs/heads/main' && secrets.CLOUDFLARE_API_TOKEN != ''
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: 'jsonspy-25s'
-          directory: 'dist'
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   # 2. Build Windows Desktop Executable & Run Rust Tests
   build-windows:
@@ -86,7 +71,7 @@ jobs:
       - name: Generate App Icons
         run: node scripts/generate_icons.js
       - name: Build Tauri Desktop App
-        run: npm run tauri build
+        run: npx tauri build
       - name: Upload Windows Desktop Artifacts
         uses: actions/upload-artifact@v7
         with:
