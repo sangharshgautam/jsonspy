@@ -103,7 +103,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Install GTK & WebKit Dependencies
         run: |
-          dpkg -s libwebkit2gtk-4.1-dev >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libxdo-dev libayatana-appindicator3-dev librsvg2-dev)
+          dpkg -s libwebkit2gtk-4.1-dev >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libxdo-dev libayatana-appindicator3-dev)
       - run: npm ci
       - name: Run Rust Backend Tests & Export Results
         run: |
@@ -127,7 +127,47 @@ jobs:
           name: jsonspy-linux-desktop
           path: src-tauri/target/release/bundle/
 
-  # 4. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
+  # 4. Build macOS Desktop App & Run Rust Tests
+  build-macos:
+    name: Build macOS Desktop App (.dmg / .app)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: 'src-tauri -> target'
+      - run: npm ci
+      - name: Run Rust Backend Tests & Export Results
+        run: |
+          mkdir -p test-results
+          echo "macOS Rust Test Execution" > test-results/placeholder.txt
+          cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json || true
+        continue-on-error: true
+      - name: Upload macOS Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-macos
+          path: test-results/
+          if-no-files-found: error
+      - name: Generate App Icons
+        run: node scripts/generate_icons.js
+      - name: Build Tauri Desktop App
+        run: npx tauri build
+      - name: Upload macOS Desktop Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-macos-desktop
+          path: src-tauri/target/release/bundle/
+
+  # 5. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
   build-intellij-plugin:
     name: Build IntelliJ Platform Plugin & Test
     runs-on: ubuntu-26.04
@@ -166,7 +206,7 @@ jobs:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/
 
-  # 5. Publish Web Test Results Report
+  # 6. Publish Web Test Results Report
   publish-web:
     name: Publish Web Test Results
     needs: build-web
@@ -182,7 +222,7 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 6. Publish Windows Test Results Report
+  # 7. Publish Windows Test Results Report
   publish-windows:
     name: Publish Windows Test Results
     needs: build-windows
@@ -198,7 +238,7 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 7. Publish Linux Test Results Report
+  # 8. Publish Linux Test Results Report
   publish-linux:
     name: Publish Linux Test Results
     needs: build-linux
@@ -214,7 +254,23 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 8. Publish IntelliJ Plugin Test Results Report
+  # 9. Publish macOS Test Results Report
+  publish-macos:
+    name: Publish macOS Test Results
+    needs: build-macos
+    if: needs.build-macos.result == 'success'
+    permissions:
+      actions: read
+      contents: write
+    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+    with:
+      project: jsonspy-macos
+      hub-repo: sangharshgautam/allure3
+      artifact-name: jsonspy-macos
+    secrets:
+      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+
+  # 10. Publish IntelliJ Plugin Test Results Report
   publish-intellij:
     name: Publish IntelliJ Test Results
     needs: build-intellij-plugin
