@@ -6,9 +6,28 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1. Build Web SPA Target, Run Unit & E2E Tests
+  # 1. Build Shared Web Frontend Bundle Once
+  build-frontend:
+    name: Build Shared Web Frontend Bundle
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Upload Shared Frontend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-dist
+          path: dist/
+
+  # 2. Build Web SPA Target & Run Unit & E2E Tests
   build-web:
     name: Build & Test Web SPA Target
+    needs: build-frontend
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
@@ -42,16 +61,21 @@ jobs:
           name: jsonspy-web
           path: test-results/
           if-no-files-found: error
-      - run: npm run build
+      - name: Download Shared Frontend Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-dist
+          path: dist
       - name: Upload Web SPA Artifact
         uses: actions/upload-artifact@v4
         with:
           name: jsonspy-web-spa
           path: dist/
 
-  # 2. Build Windows Desktop Executable & Run Rust Tests
+  # 3. Build Windows Desktop Executable & Run Rust Tests
   build-windows:
     name: Build Windows Desktop App (.msi / .exe)
+    needs: build-frontend
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +83,11 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+      - name: Download Shared Frontend Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-dist
+          path: dist
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Rust Cache
@@ -89,9 +118,10 @@ jobs:
           name: jsonspy-windows-desktop
           path: src-tauri/target/release/bundle/
 
-  # 3. Build Ubuntu / Linux Desktop App & Run Rust Tests
+  # 4. Build Ubuntu / Linux Desktop App & Run Rust Tests
   build-linux:
     name: Build Ubuntu / Linux App (.deb / .AppImage)
+    needs: build-frontend
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
@@ -99,6 +129,11 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+      - name: Download Shared Frontend Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-dist
+          path: dist
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Install GTK & WebKit Dependencies
@@ -127,9 +162,10 @@ jobs:
           name: jsonspy-linux-desktop
           path: src-tauri/target/release/bundle/
 
-  # 4. Build macOS Desktop App & Run Rust Tests
+  # 5. Build macOS Desktop App & Run Rust Tests
   build-macos:
     name: Build macOS Desktop App (.dmg / .app)
+    needs: build-frontend
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -137,6 +173,11 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+      - name: Download Shared Frontend Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-dist
+          path: dist
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Rust Cache
@@ -167,9 +208,10 @@ jobs:
           name: jsonspy-macos-desktop
           path: src-tauri/target/release/bundle/
 
-  # 5. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
+  # 6. Build IntelliJ Platform Plugin & Run Kotlin/JUnit Tests
   build-intellij-plugin:
     name: Build IntelliJ Platform Plugin & Test
+    needs: build-frontend
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
@@ -206,7 +248,7 @@ jobs:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/
 
-  # 6. Publish Web Test Results Report
+  # 7. Publish Web Test Results Report
   publish-web:
     name: Publish Web Test Results
     needs: build-web
@@ -222,7 +264,7 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 7. Publish Windows Test Results Report
+  # 8. Publish Windows Test Results Report
   publish-windows:
     name: Publish Windows Test Results
     needs: build-windows
@@ -238,7 +280,7 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 8. Publish Linux Test Results Report
+  # 9. Publish Linux Test Results Report
   publish-linux:
     name: Publish Linux Test Results
     needs: build-linux
@@ -254,7 +296,7 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 9. Publish macOS Test Results Report
+  # 10. Publish macOS Test Results Report
   publish-macos:
     name: Publish macOS Test Results
     needs: build-macos
@@ -270,7 +312,7 @@ jobs:
     secrets:
       HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
 
-  # 10. Publish IntelliJ Plugin Test Results Report
+  # 11. Publish IntelliJ Plugin Test Results Report
   publish-intellij:
     name: Publish IntelliJ Test Results
     needs: build-intellij-plugin
