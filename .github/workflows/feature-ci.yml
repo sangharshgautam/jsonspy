@@ -1,0 +1,34 @@
+name: Feature Branch CI (Web SPA Build & Test)
+
+on:
+  push:
+    branches: [ 'feature/*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test-web:
+    name: Build & Test Web SPA
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run Vitest Unit Tests
+        run: npm test
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright E2E Tests
+        run: npm run test:e2e
+
+      - name: Run Web SPA Production Build
+        run: npm run build

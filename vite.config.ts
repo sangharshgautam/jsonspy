@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -9,6 +10,10 @@ export default defineConfig(async () => ({
     alias: {
       '@': path.resolve(import.meta.dirname || __dirname, './src'),
     },
+  },
+  test: {
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    exclude: ['e2e/**/*', 'node_modules/**/*'],
   },
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   clearScreen: false,

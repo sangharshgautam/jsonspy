@@ -1,26 +1,28 @@
-name: Build All Targets & Run Tests (Web, Windows, Linux, IntelliJ)
+name: Main Branch Integration & Test Reporting
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  # 1. Build Web SPA Artifacts & Run Unit Tests
+  # 1. Build Web SPA Target, Run Unit & E2E Tests
   build-web:
     name: Build & Test Web SPA Target
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
       - run: npm ci
       - name: Run Web SPA Unit Tests
         run: npm test
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright E2E Tests
+        run: npm run test:e2e
       - name: Upload Web Test Results
         if: always()
         uses: actions/upload-artifact@v4
@@ -40,8 +42,8 @@ jobs:
     name: Build Windows Desktop App (.msi / .exe)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -79,8 +81,8 @@ jobs:
     name: Build Ubuntu / Linux App (.deb / .AppImage)
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -117,8 +119,8 @@ jobs:
     name: Build IntelliJ Platform Plugin & Test
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'

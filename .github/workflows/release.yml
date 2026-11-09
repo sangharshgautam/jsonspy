@@ -1,0 +1,157 @@
+name: Release Pipeline (Desktop Installers, IntelliJ Plugin & Landing Page)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # 1. Build and Release Tauri Desktop Apps (Windows, Linux, macOS)
+  release-desktop:
+    name: Build & Release Tauri Desktop (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            artifact_glob: 'src-tauri/target/release/bundle/{msi,msix}/*.{msi,msix}'
+          - platform: 'ubuntu-26.04'
+            artifact_glob: 'src-tauri/target/release/bundle/deb/*.deb'
+          - platform: 'macos-latest'
+            artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: 'src-tauri -> target'
+
+      - name: Install GTK & WebKit Dependencies (Linux only)
+        if: matrix.platform == 'ubuntu-26.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - run: npm ci
+
+      - name: Generate AppIcons
+        run: node scripts/generate_icons.js
+
+      - name: Build Tauri Desktop App
+        run: npx tauri build
+
+      - name: Upload MSIX to Azure Storage ($web container)
+        if: matrix.platform == 'windows-latest' && secrets.AZURE_STORAGE_CONNECTION_STRING != ''
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            $msixFile = Get-Item src-tauri/target/release/bundle/msix/*.msix
+            az storage blob upload `
+              --container-name '$web' `
+              --file $msixFile.FullName `
+              --name $msixFile.Name `
+              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' `
+              --overwrite true
+
+      - name: Upload Desktop Artifact to GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: ${{ matrix.artifact_glob }}
+          tag_name: ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          name: 'JSONSpy Workbench ${{ github.ref_name }}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # 2. Build and Attach IntelliJ Plugin Zip & Publish to JetBrains Marketplace
+  release-intellij-plugin:
+    name: Build & Release IntelliJ Plugin
+    needs: release-desktop
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          build-root-directory: intellij-plugin
+
+      - run: npm ci
+
+      - name: Bundle Web SPA into IntelliJ Webview
+        run: node scripts/build_intellij_plugin.js
+
+      - name: Build IntelliJ Platform Plugin Distribution
+        run: |
+          cd intellij-plugin
+          chmod +x gradlew || true
+          ./gradlew buildPlugin
+
+      - name: Attach Plugin Zip to GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: intellij-plugin/build/distributions/*.zip
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Plugin to JetBrains Marketplace
+        if: env.JETBRAINS_MARKETPLACE_TOKEN != ''
+        env:
+          JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
+        run: |
+          cd intellij-plugin
+          ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN
+
+  # 3. Build & Deploy Landing Page Website (Runs AFTER successful platform releases)
+  release-landing:
+    name: Build & Deploy Landing Page
+    needs: [release-desktop, release-intellij-plugin]
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build Landing Page
+        run: npm run build:landing
+
+      - name: Deploy Landing Page to Azure Storage ($web container)
+        if: secrets.AZURE_STORAGE_CONNECTION_STRING != ''
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination '$web' \
+              --source landing/dist/ \
+              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
+              --overwrite true
