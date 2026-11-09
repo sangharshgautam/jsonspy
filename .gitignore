@@ -44,3 +44,4 @@ intellij-plugin/build/
 intellij-plugin/.gradle/
 intellij-plugin/.intellijPlatform/
 test-results/
+playwright-report/

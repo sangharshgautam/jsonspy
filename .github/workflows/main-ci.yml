@@ -6,13 +6,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1. Build Web SPA Target, Run Unit & E2E Tests, Deploy to Azure
+  # 1. Build Web SPA Target, Run Unit & E2E Tests
   build-web:
     name: Build & Test Web SPA Target
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -25,24 +25,14 @@ jobs:
         run: npm run test:e2e
       - name: Upload Web Test Results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-web
           path: test-results/
           if-no-files-found: warn
       - run: npm run build
-#      - name: Deploy Web SPA to Azure Storage ($web container)
-#        if: secrets.AZURE_STORAGE_CONNECTION_STRING != ''
-#        uses: azure/CLI@v2
-#        with:
-#          inlineScript: |
-#            az storage blob upload-batch \
-#              --destination '$web' \
-#              --source dist/ \
-#              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
-#              --overwrite true
       - name: Upload Web SPA Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-web-spa
           path: dist/
@@ -52,8 +42,8 @@ jobs:
     name: Build Windows Desktop App (.msi / .exe)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -71,7 +61,7 @@ jobs:
         continue-on-error: true
       - name: Upload Windows Test Results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-windows
           path: test-results/
@@ -81,7 +71,7 @@ jobs:
       - name: Build Tauri Desktop App
         run: npx tauri build
       - name: Upload Windows Desktop Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-windows-desktop
           path: src-tauri/target/release/bundle/
@@ -91,8 +81,8 @@ jobs:
     name: Build Ubuntu / Linux App (.deb / .AppImage)
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -109,7 +99,7 @@ jobs:
           cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json || true
       - name: Upload Linux Test Results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-linux
           path: test-results/
@@ -119,7 +109,7 @@ jobs:
       - name: Build Tauri Desktop App
         run: npx tauri build
       - name: Upload Linux Desktop Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-linux-desktop
           path: src-tauri/target/release/bundle/
@@ -129,17 +119,17 @@ jobs:
     name: Build IntelliJ Platform Plugin & Test
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
-      - uses: actions/setup-java@v6
+      - uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '21'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v4
         with:
           build-root-directory: intellij-plugin
       - run: npm ci
@@ -152,13 +142,13 @@ jobs:
           ./gradlew test buildPlugin
       - name: Upload Allure test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-intellij
           path: intellij-plugin/build/allure-results
           if-no-files-found: warn
       - name: Upload IntelliJ Plugin Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/
