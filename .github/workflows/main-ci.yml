@@ -31,16 +31,16 @@ jobs:
           path: test-results/
           if-no-files-found: warn
       - run: npm run build
-      - name: Deploy Web SPA to Azure Storage ($web container)
-        if: secrets.AZURE_STORAGE_CONNECTION_STRING != ''
-        uses: azure/CLI@v2
-        with:
-          inlineScript: |
-            az storage blob upload-batch \
-              --destination '$web' \
-              --source dist/ \
-              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
-              --overwrite true
+#      - name: Deploy Web SPA to Azure Storage ($web container)
+#        if: secrets.AZURE_STORAGE_CONNECTION_STRING != ''
+#        uses: azure/CLI@v2
+#        with:
+#          inlineScript: |
+#            az storage blob upload-batch \
+#              --destination '$web' \
+#              --source dist/ \
+#              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
+#              --overwrite true
       - name: Upload Web SPA Artifact
         uses: actions/upload-artifact@v7
         with:
