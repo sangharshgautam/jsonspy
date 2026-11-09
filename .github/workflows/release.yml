@@ -127,9 +127,10 @@ jobs:
           cd intellij-plugin
           ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN
 
-  # 3. Build & Deploy Landing Page Website
+  # 3. Build & Deploy Landing Page Website (Runs AFTER successful platform releases)
   release-landing:
     name: Build & Deploy Landing Page
+    needs: [release-desktop, release-intellij-plugin]
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
