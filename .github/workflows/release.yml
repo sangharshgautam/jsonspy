@@ -18,16 +18,16 @@ jobs:
       matrix:
         include:
           - platform: 'windows-latest'
-            artifact_glob: 'src-tauri/target/release/bundle/{msi,msix}/*.{msi,msix}'
+            artifact_glob: 'src-tauri/target/release/bundle/msi/*.msi'
           - platform: 'ubuntu-26.04'
             artifact_glob: 'src-tauri/target/release/bundle/deb/*.deb'
           - platform: 'macos-latest'
             artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -54,21 +54,19 @@ jobs:
       - name: Build Tauri Desktop App
         run: npx tauri build
 
-      - name: Upload MSIX to Azure Storage ($web container)
+      - name: Upload MSI to Azure Storage ($web container)
         if: matrix.platform == 'windows-latest' && secrets.AZURE_STORAGE_CONNECTION_STRING != ''
         uses: azure/CLI@v2
         with:
           inlineScript: |
-            $msixFile = Get-Item src-tauri/target/release/bundle/msix/*.msix
-            az storage blob upload `
-              --container-name '$web' `
-              --file $msixFile.FullName `
-              --name $msixFile.Name `
-              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' `
+            az storage blob upload-batch \
+              --destination '$web' \
+              --source src-tauri/target/release/bundle/msi/ \
+              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
               --overwrite true
 
       - name: Upload Desktop Artifact to GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
         with:
           files: ${{ matrix.artifact_glob }}
           tag_name: ${{ github.ref_name }}
@@ -83,20 +81,20 @@ jobs:
     needs: release-desktop
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
 
-      - uses: actions/setup-java@v6
+      - uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '21'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v4
         with:
           build-root-directory: intellij-plugin
 
@@ -112,7 +110,7 @@ jobs:
           ./gradlew buildPlugin
 
       - name: Attach Plugin Zip to GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
         with:
           files: intellij-plugin/build/distributions/*.zip
           tag_name: ${{ github.ref_name }}
@@ -128,30 +126,30 @@ jobs:
           ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN
 
   # 3. Build & Deploy Landing Page Website (Runs AFTER successful platform releases)
-#  release-landing:
-#    name: Build & Deploy Landing Page
-#    needs: [release-desktop, release-intellij-plugin]
-#    runs-on: ubuntu-26.04
-#    steps:
-#      - uses: actions/checkout@v7
-#
-#      - uses: actions/setup-node@v7
-#        with:
-#          node-version: 24
-#          cache: 'npm'
-#
-#      - run: npm ci
+  release-landing:
+    name: Build & Deploy Landing Page
+    needs: [release-desktop, release-intellij-plugin]
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
 
-#      - name: Build Landing Page
-#        run: npm run build:landing
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
 
-#      - name: Deploy Landing Page to Azure Storage ($web container)
-#        if: secrets.AZURE_STORAGE_CONNECTION_STRING != ''
-#        uses: azure/CLI@v2
-#        with:
-#          inlineScript: |
-#            az storage blob upload-batch \
-#              --destination '$web' \
-#              --source landing/dist/ \
-#              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
-#              --overwrite true
+      - run: npm ci
+
+      - name: Build Landing Page
+        run: npm run build:landing
+
+      - name: Deploy Landing Page to Azure Storage ($web container)
+        if: secrets.AZURE_STORAGE_CONNECTION_STRING != ''
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination '$web' \
+              --source landing/dist/ \
+              --connection-string '${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
+              --overwrite true
