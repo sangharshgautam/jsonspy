@@ -57,6 +57,7 @@ jobs:
       - name: Run Rust Backend Tests & Export Results
         run: |
           New-Item -ItemType Directory -Force -Path test-results
+          Set-Content -Path test-results/placeholder.txt -Value "Rust test execution"
           cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json
         continue-on-error: true
       - name: Upload Windows Test Results
@@ -96,6 +97,7 @@ jobs:
       - name: Run Rust Backend Tests & Export Results
         run: |
           mkdir -p test-results
+          echo "Linux Rust Test Execution" > test-results/placeholder.txt
           cargo test --manifest-path src-tauri/Cargo.toml -- --format json > test-results/rust-test-output.json || true
       - name: Upload Linux Test Results
         if: always()
@@ -157,7 +159,7 @@ jobs:
   publish-web:
     name: Publish Web Test Results
     needs: build-web
-    if: always()
+    if: needs.build-web.result == 'success'
     permissions:
       actions: read
       contents: write
@@ -173,7 +175,7 @@ jobs:
   publish-windows:
     name: Publish Windows Test Results
     needs: build-windows
-    if: always()
+    if: needs.build-windows.result == 'success'
     permissions:
       actions: read
       contents: write
@@ -189,7 +191,7 @@ jobs:
   publish-linux:
     name: Publish Linux Test Results
     needs: build-linux
-    if: always()
+    if: needs.build-linux.result == 'success'
     permissions:
       actions: read
       contents: write
@@ -205,7 +207,7 @@ jobs:
   publish-intellij:
     name: Publish IntelliJ Test Results
     needs: build-intellij-plugin
-    if: always()
+    if: needs.build-intellij-plugin.result == 'success'
     permissions:
       actions: read
       contents: write
