@@ -31,6 +31,8 @@ jobs:
     runs-on: ubuntu-26.04
     container:
       image: mcr.microsoft.com/playwright:v1.50.0-jammy
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
