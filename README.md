@@ -131,3 +131,4 @@ Output: `src-tauri/target/release/bundle/msi/JSONSpy_1.0.0_x64_en-US.msi`
 
 ## 📄 License
 Licensed under the Apache License 2.0 / MIT License.
+
