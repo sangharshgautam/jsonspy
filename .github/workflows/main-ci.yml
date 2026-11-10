@@ -30,7 +30,7 @@ jobs:
     needs: build-frontend
     runs-on: ubuntu-26.04
     container:
-      image: mcr.microsoft.com/playwright:v1.50.0-jammy
+      image: mcr.microsoft.com/playwright:v1.65.0-jammy
     env:
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     steps:
