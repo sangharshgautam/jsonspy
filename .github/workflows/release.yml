@@ -39,10 +39,10 @@ jobs:
         include:
           - platform: 'windows-latest'
             artifact_glob: 'src-tauri/target/release/bundle/msi/*.msi'
-#          - platform: 'ubuntu-26.04'
-#            artifact_glob: 'src-tauri/target/release/bundle/deb/*.deb'
-#          - platform: 'macos-latest'
-#            artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
+          - platform: 'ubuntu-26.04'
+            artifact_glob: 'src-tauri/target/release/bundle/deb/*.deb'
+          - platform: 'macos-latest'
+            artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v6
