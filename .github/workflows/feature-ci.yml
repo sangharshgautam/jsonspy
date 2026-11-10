@@ -53,17 +53,17 @@ jobs:
 #      - name: Run Web SPA Production Build
 #        run: npm run build
 
-  publish-web:
-    name: Publish Web Test Results
-    needs: build-and-test-web
-    if: always()
-    permissions:
-      actions: read
-      contents: write
-    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
-    with:
-      project: jsonspy-web
-      hub-repo: sangharshgautam/allure3
-      artifact-name: jsonspy-web
-    secrets:
-      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+#  publish-web:
+#    name: Publish Web Test Results
+#    needs: build-and-test-web
+#    if: always()
+#    permissions:
+#      actions: read
+#      contents: write
+#    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+#    with:
+#      project: jsonspy-web
+#      hub-repo: sangharshgautam/allure3
+#      artifact-name: jsonspy-web
+#    secrets:
+#      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
