@@ -11,21 +11,20 @@ permissions:
   contents: write
 
 jobs:
-  # 1. Build Shared Web SPA Frontend Bundle Once
+  # 1. Build Shared Web Frontend Bundle Once
   build-frontend:
     name: Build Shared Web Frontend Bundle
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: 'npm'
       - run: npm ci
-      - name: Build Web SPA Bundle
-        run: npm run build
+      - run: npm run build
       - name: Upload Shared Frontend Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: shared-dist
           path: dist/
@@ -40,15 +39,15 @@ jobs:
         include:
           - platform: 'windows-latest'
             artifact_glob: 'src-tauri/target/release/bundle/msi/*.msi'
-#          - platform: 'ubuntu-26.04'
-#            artifact_glob: 'src-tauri/target/release/bundle/deb/*.deb'
-#          - platform: 'macos-latest'
-#            artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
+          - platform: 'ubuntu-26.04'
+            artifact_glob: 'src-tauri/target/release/bundle/deb/*.deb'
+          - platform: 'macos-latest'
+            artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: 'npm'
@@ -80,18 +79,12 @@ jobs:
       - name: Build Tauri Desktop App
         run: npx tauri build
 
-      - name: Upload MSI to Azure Storage ($web container)
-        if: matrix.platform == 'windows-latest' && env.AZURE_STORAGE_CONNECTION_STRING != ''
-        env:
-          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
-        uses: azure/CLI@v2
+      - name: Upload Windows Bundle Artifact for Azure
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v7
         with:
-          inlineScript: |
-            az storage blob upload-batch \
-              --destination '$web' \
-              --source src-tauri/target/release/bundle/msi/ \
-              --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
-              --overwrite true
+          name: jsonspy-windows-bundle
+          path: src-tauri/target/release/bundle/
 
       - name: Upload Desktop Artifact to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -103,15 +96,40 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # 3. Build and Attach IntelliJ Plugin Zip & Publish to JetBrains Marketplace
-  release-intellij-plugin:
-    name: Build & Release IntelliJ Plugin
+  # 3. Upload Windows MSI to Azure Storage ($web container) on Linux Runner
+  upload-azure-msi:
+    name: Upload Windows MSI to Azure Storage
     needs: release-desktop
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v6
+      - name: Download Windows Desktop Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: jsonspy-windows-bundle
+          path: windows-bundle
+      - name: Upload MSI to Azure Storage ($web container)
+        if: env.AZURE_STORAGE_CONNECTION_STRING != ''
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination '$web' \
+              --source windows-bundle/msi/ \
+              --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
+              --overwrite true
 
-      - uses: actions/setup-node@v6
+  # 4. Build and Attach IntelliJ Plugin Zip & Publish to JetBrains Marketplace
+  release-intellij-plugin:
+    name: Build & Release IntelliJ Plugin
+    needs: upload-azure-msi
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: 'npm'
@@ -153,15 +171,15 @@ jobs:
           cd intellij-plugin
           ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN
 
-  # 4. Build & Deploy Landing Page Website (Runs AFTER successful platform releases)
+  # 5. Build & Deploy Landing Page Website (Runs AFTER successful platform releases)
   release-landing:
     name: Build & Deploy Landing Page
     needs: [release-desktop, release-intellij-plugin]
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: 'npm'
