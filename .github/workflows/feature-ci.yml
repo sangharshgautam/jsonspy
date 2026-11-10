@@ -55,7 +55,7 @@ jobs:
 
   publish-web:
     name: Publish Web Test Results
-    needs: build-web
+    needs: build-and-test-web
     if: always()
     permissions:
       actions: read
