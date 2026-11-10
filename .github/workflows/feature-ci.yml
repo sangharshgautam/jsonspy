@@ -12,9 +12,9 @@ jobs:
     name: Build & Test Web SPA
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
@@ -26,7 +26,7 @@ jobs:
 
       - name: Cache Playwright Browsers
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -42,5 +42,28 @@ jobs:
       - name: Run Playwright E2E Tests
         run: npm run test:e2e
 
-      - name: Run Web SPA Production Build
-        run: npm run build
+#      - name: Upload Web Test Results
+#        if: always()
+#        uses: actions/upload-artifact@v7
+#        with:
+#          name: jsonspy-web
+#          path: test-results/
+  #          if-no-files-found: warn
+
+#      - name: Run Web SPA Production Build
+#        run: npm run build
+
+#  publish-web:
+#    name: Publish Web Test Results
+#    needs: build-and-test-web
+#    if: always()
+#    permissions:
+#      actions: read
+#      contents: write
+#    uses: sangharshgautam/allure3/.github/workflows/publish-report.yml@main
+#    with:
+#      project: jsonspy-web
+#      hub-repo: sangharshgautam/allure3
+#      artifact-name: jsonspy-web
+#    secrets:
+#      HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
