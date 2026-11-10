@@ -24,6 +24,14 @@ jobs:
       - name: Run Vitest Unit Tests
         run: npm test
 
+      - name: Upload Web Test Results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jsonspy-web
+          path: test-results/
+          if-no-files-found: warn
+
       - name: Cache Playwright Browsers
         id: playwright-cache
         uses: actions/cache@v4
