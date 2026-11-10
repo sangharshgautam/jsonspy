@@ -32,24 +32,24 @@ jobs:
           path: test-results/
 #          if-no-files-found: warn
 
-#      - name: Cache Playwright Browsers
-#        id: playwright-cache
-#        uses: actions/cache@v4
-#        with:
-#          path: ~/.cache/ms-playwright
-#          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-#
-#      - name: Install Playwright Browsers
-#        if: steps.playwright-cache.outputs.cache-hit != 'true'
-#        run: npx playwright install --with-deps
-#
-#      - name: Install Playwright System Dependencies
-#        if: steps.playwright-cache.outputs.cache-hit == 'true'
-#        run: npx playwright install-deps
-#
-#      - name: Run Playwright E2E Tests
-#        run: npm run test:e2e
-#
+      - name: Cache Playwright Browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+
+      - name: Install Playwright System Dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps
+
+      - name: Run Playwright E2E Tests
+        run: npm run test:e2e
+
 #      - name: Run Web SPA Production Build
 #        run: npm run build
 
