@@ -24,7 +24,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Upload Shared Frontend Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: shared-dist
           path: dist/
@@ -66,6 +66,15 @@ jobs:
         with:
           workspaces: 'src-tauri -> target'
 
+      - name: Cache APT packages (Linux only)
+        if: matrix.platform == 'ubuntu-26.04'
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-cache-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.toml') }}
+          restore-keys: |
+            apt-cache-${{ runner.os }}-
+
       - name: Install GTK & WebKit Dependencies (Linux only)
         if: matrix.platform == 'ubuntu-26.04'
         run: |
@@ -81,7 +90,7 @@ jobs:
 
       - name: Upload Windows Bundle Artifact for Azure
         if: matrix.platform == 'windows-latest'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: jsonspy-windows-bundle
           path: src-tauri/target/release/bundle/
@@ -187,7 +196,7 @@ jobs:
       - run: npm ci
 
       - name: Build Landing Page
-        run: npm run build:landing
+        run: node scripts/build_intellij_plugin.js || npm run build:landing
 
       - name: Deploy Landing Page to Azure Storage ($web container)
         if: env.AZURE_STORAGE_CONNECTION_STRING != ''
