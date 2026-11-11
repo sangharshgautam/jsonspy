@@ -58,6 +58,17 @@ jobs:
           name: shared-dist
           path: dist
 
+      - name: Synchronize Tauri Version from Git Tag
+        run: |
+          VERSION=${{ github.ref_name }}
+          CLEAN_VERSION=${VERSION#v}
+          node -e '
+            const fs = require("fs");
+            const conf = JSON.parse(fs.readFileSync("src-tauri/tauri.conf.json", "utf8"));
+            conf.version = process.argv[1];
+            fs.writeFileSync("src-tauri/tauri.conf.json", JSON.stringify(conf, null, 2));
+          ' $CLEAN_VERSION
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
