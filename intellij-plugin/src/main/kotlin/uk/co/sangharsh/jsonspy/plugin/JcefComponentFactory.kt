@@ -3,6 +3,7 @@ package uk.co.sangharsh.jsonspy.plugin
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.ui.ColorUtil
 import com.intellij.ui.jcef.JBCefApp
 import com.intellij.ui.jcef.JBCefBrowser
 import com.intellij.ui.jcef.JBCefBrowserBase
@@ -60,7 +61,7 @@ object JcefComponentFactory {
         }
 
         val isDarkTheme = try {
-            UIUtil.isUnderDarcula()
+            ColorUtil.isDark(UIUtil.getPanelBackground())
         } catch (e: Throwable) {
             true
         }
