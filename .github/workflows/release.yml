@@ -251,3 +251,27 @@ jobs:
           TAG="${{ needs.set-version.outputs.tag }}"
           git tag -a "$TAG" -m "Automated Release $TAG via Manual Release Pipeline" || true
           git push origin "$TAG" || true
+
+  # 7. Automatically Bump version.txt for Next Development Cycle
+  bump-next-version:
+    name: Bump version.txt for Next Development Cycle
+    needs: create-git-tag
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure Git User
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+      - name: Increment Version in version.txt
+        run: |
+          CURRENT_VERSION="${{ needs.set-version.outputs.version }}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          NEXT_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+          echo "$NEXT_VERSION" > version.txt
+          
+          git add version.txt
+          git commit -m "ci: bump version.txt to $NEXT_VERSION for next development cycle [skip ci]" || true
+          git push origin main
