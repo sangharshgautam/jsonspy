@@ -7,9 +7,10 @@ plugins {
     id("org.jetbrains.intellij.platform") version "2.19.0"
 }
 
+val inputVersion = findProperty("version") as? String
 val versionFile = rootProject.file("../version.txt")
 val fileVersion = if (versionFile.exists()) versionFile.readText().trim() else "1.0.3"
-val pluginVersion = System.getenv("GITHUB_REF_NAME")?.removePrefix("v") ?: fileVersion
+val pluginVersion = inputVersion ?: System.getenv("GITHUB_REF_NAME")?.removePrefix("v") ?: fileVersion
 
 group = "uk.co.sangharsh.jsonspy.plugin"
 version = pluginVersion
