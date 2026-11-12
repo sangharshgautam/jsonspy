@@ -59,6 +59,7 @@ jobs:
           path: dist
 
       - name: Synchronize Tauri Version from Git Tag
+        shell: bash
         run: |
           VERSION=${{ github.ref_name }}
           CLEAN_VERSION=${VERSION#v}
