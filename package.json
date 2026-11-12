@@ -1,7 +1,7 @@
 {
   "name": "jsonspy",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,7 @@
     "build:intellij": "node scripts/build_intellij_plugin.js",
     "tauri:build:linux": "tauri build --target x86_64-unknown-linux-gnu",
     "preview": "vite preview",
+    "build:msix": "node scripts/build_msix.js",
     "tauri": "tauri",
     "test": "vitest run --reporter=junit --outputFile=test-results/junit.xml",
     "test:e2e": "playwright test"
