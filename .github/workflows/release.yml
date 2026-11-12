@@ -1,19 +1,32 @@
-name: Release Pipeline (Desktop Installers, IntelliJ Plugin & Landing Page)
+name: Manual Release Pipeline (Desktop Installers, IntelliJ Plugin & Landing Page)
 
 on:
-  push:
-    branches: [ 'test-release' ]
-    tags:
-      - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version without v prefix (e.g., 1.0.3)'
+        required: true
+        default: '1.0.3'
+        type: string
 
 permissions:
   contents: write
 
 jobs:
+  # 0. Validate & Set Version Environment
+  set-version:
+    name: Set Version (${{ inputs.version }})
+    runs-on: ubuntu-26.04
+    outputs:
+      version: ${{ inputs.version }}
+      tag: v${{ inputs.version }}
+    steps:
+      - run: echo "Releasing version ${{ inputs.version }}"
+
   # 1. Build Shared Web Frontend Bundle Once
   build-frontend:
     name: Build Shared Web Frontend Bundle
+    needs: set-version
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v6
@@ -32,7 +45,7 @@ jobs:
   # 2. Build and Release Tauri Desktop Apps (Reusing Shared Frontend)
   release-desktop:
     name: Build & Release Tauri Desktop (${{ matrix.platform }})
-    needs: build-frontend
+    needs: [set-version, build-frontend]
     strategy:
       fail-fast: false
       matrix:
@@ -58,17 +71,16 @@ jobs:
           name: shared-dist
           path: dist
 
-      - name: Synchronize Tauri Version from Git Tag
+      - name: Synchronize Tauri Version from Input
         shell: bash
         run: |
-          VERSION=${{ github.ref_name }}
-          CLEAN_VERSION=${VERSION#v}
+          CLEAN_VERSION="${{ needs.set-version.outputs.version }}"
           node -e '
             const fs = require("fs");
             const conf = JSON.parse(fs.readFileSync("src-tauri/tauri.conf.json", "utf8"));
             conf.version = process.argv[1];
             fs.writeFileSync("src-tauri/tauri.conf.json", JSON.stringify(conf, null, 2));
-          ' $CLEAN_VERSION
+          ' "$CLEAN_VERSION"
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -111,16 +123,16 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ matrix.artifact_glob }}
-          tag_name: ${{ github.ref_name }}
+          tag_name: v${{ needs.set-version.outputs.version }}
           body_path: CHANGELOG.md
-          name: 'JSONSpy Workbench ${{ github.ref_name }}'
+          name: 'JSONSpy Workbench v${{ needs.set-version.outputs.version }}'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # 3. Upload Windows MSI to Azure Storage ($web container) on Linux Runner
   upload-azure-msi:
     name: Upload Windows MSI to Azure Storage
-    needs: release-desktop
+    needs: [set-version, release-desktop]
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v6
@@ -145,7 +157,7 @@ jobs:
   # 4. Build and Attach IntelliJ Plugin Zip & Publish to JetBrains Marketplace
   release-intellij-plugin:
     name: Build & Release IntelliJ Plugin
-    needs: upload-azure-msi
+    needs: [set-version, upload-azure-msi]
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v6
@@ -174,13 +186,13 @@ jobs:
         run: |
           cd intellij-plugin
           chmod +x gradlew || true
-          ./gradlew buildPlugin
+          ./gradlew buildPlugin -Pversion=${{ needs.set-version.outputs.version }}
 
       - name: Attach Plugin Zip to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: intellij-plugin/build/distributions/*.zip
-          tag_name: ${{ github.ref_name }}
+          tag_name: v${{ needs.set-version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -190,12 +202,12 @@ jobs:
           JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
         run: |
           cd intellij-plugin
-          ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN
+          ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN -Pversion=${{ needs.set-version.outputs.version }}
 
-  # 5. Build & Deploy Landing Page Website (Runs AFTER successful platform releases)
+  # 5. Build & Deploy Landing Page Website
   release-landing:
     name: Build & Deploy Landing Page
-    needs: [release-desktop, release-intellij-plugin]
+    needs: [set-version, release-intellij-plugin]
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v6
@@ -222,3 +234,20 @@ jobs:
               --source landing/dist/ \
               --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
               --overwrite true
+
+  # 6. Automatically Create & Push Git Tag Upon Successful Release
+  create-git-tag:
+    name: Create & Push Git Tag
+    needs: [set-version, release-landing]
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Git User
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+      - name: Create and Push Tag
+        run: |
+          TAG="${{ needs.set-version.outputs.tag }}"
+          git tag -a "$TAG" -m "Automated Release $TAG via Manual Release Pipeline" || true
+          git push origin "$TAG" || true
