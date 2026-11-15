@@ -3,6 +3,7 @@ import { DocumentTab, ThemeMode, ViewMode } from './types/jsonspy';
 import { SAMPLE_DATASETS } from './utils/sampleData';
 import { smartFixJSON } from './utils/smartFix';
 import { openJsonFile, saveJsonFile } from './utils/fileSystem';
+import { platformAdapter } from './utils/platformAdapter';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { TextView } from './components/TextView';
@@ -61,7 +62,68 @@ export const App: React.FC = () => {
 
   const handleContentChange = (newContent: string) => {
     updateActiveTab({ content: newContent, isDirty: true });
+    if (platformAdapter.isVsCode()) {
+      platformAdapter.notifyDocumentChanged?.(newContent);
+    }
   };
+
+  // Synchronize document and theme when running inside VS Code or IntelliJ
+  useEffect(() => {
+    if (platformAdapter.isVsCode()) {
+      platformAdapter.onVsCodeDocumentUpdate?.((data) => {
+        if (data.theme) {
+          setTheme(data.theme);
+        }
+        setTabs((prevTabs) => {
+          if (prevTabs.length > 0) {
+            return prevTabs.map((tab, idx) =>
+              idx === 0
+                ? {
+                    ...tab,
+                    title: data.name,
+                    content: data.content,
+                    filePath: data.path,
+                    isDirty: false,
+                  }
+                : tab
+            );
+          }
+          return [
+            {
+              id: 'vscode_tab_1',
+              title: data.name,
+              content: data.content,
+              filePath: data.path,
+              isDirty: false,
+              selectedView: 'text',
+            },
+          ];
+        });
+      });
+
+      const handleThemeMessage = (event: MessageEvent) => {
+        if (event.data?.type === 'themeChanged' && event.data.theme) {
+          setTheme(event.data.theme);
+        }
+      };
+      window.addEventListener('message', handleThemeMessage);
+      return () => window.removeEventListener('message', handleThemeMessage);
+    } else if (platformAdapter.isIntelliJ()) {
+      platformAdapter.onIdeFileOpen?.((data) => {
+        const newId = `tab_${Date.now()}`;
+        const newTab: DocumentTab = {
+          id: newId,
+          title: data.name,
+          content: data.content,
+          filePath: data.path,
+          isDirty: false,
+          selectedView: 'text',
+        };
+        setTabs((prev) => [...prev, newTab]);
+        setActiveTabId(newId);
+      });
+    }
+  }, []);
 
   const handleAddTab = () => {
     const newId = `tab_${Date.now()}`;

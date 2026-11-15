@@ -13,6 +13,7 @@
     "tauri:build:linux": "tauri build --target x86_64-unknown-linux-gnu",
     "preview": "vite preview",
     "build:msix": "node scripts/build_msix.js",
+    "build:vscode": "node scripts/build_vscode_extension.js",
     "tauri": "tauri",
     "test": "vitest run --reporter=junit --outputFile=test-results/junit.xml",
     "test:e2e": "playwright test"

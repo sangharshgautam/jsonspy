@@ -1,0 +1,93 @@
+{
+  "name": "jsonspy",
+  "displayName": "JSONSpy — JSON Workbench & Schema Designer",
+  "description": "Enterprise JSON editing, validation, transformation, and visual schema modeling workbench for VS Code.",
+  "version": "1.0.4",
+  "publisher": "Sangharsh",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sangharsh/JSONSpy"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Formatters",
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "json",
+    "json editor",
+    "json schema",
+    "jsonata",
+    "schema designer",
+    "smartfix"
+  ],
+  "icon": "media/icon.png",
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "jsonspy.workbench",
+        "displayName": "JSONSpy Workbench",
+        "selector": [
+          {
+            "filenamePattern": "*.json"
+          },
+          {
+            "filenamePattern": "*.schema.json"
+          },
+          {
+            "filenamePattern": "*.geojson"
+          },
+          {
+            "filenamePattern": "*.topojson"
+          }
+        ],
+        "priority": "option"
+      }
+    ],
+    "commands": [
+      {
+        "command": "jsonspy.open",
+        "title": "JSONSpy: Open Workbench (New Scratchpad)",
+        "category": "JSONSpy"
+      },
+      {
+        "command": "jsonspy.openCurrentFile",
+        "title": "JSONSpy: Open File with JSONSpy",
+        "category": "JSONSpy"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "jsonspy.openCurrentFile",
+          "when": "resourceExtname == .json || resourceExtname == .geojson || resourceExtname == .topojson",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "jsonspy.openCurrentFile",
+          "when": "resourceExtname == .json || resourceExtname == .geojson || resourceExtname == .topojson",
+          "group": "7_modification"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js --watch"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^22.13.4",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.7.3"
+  }
+}

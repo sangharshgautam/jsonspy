@@ -1,0 +1,7 @@
+.vscode/**
+src/**
+tsconfig.json
+build.js
+node_modules/**
+*.vsix
+.DS_Store
