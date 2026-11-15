@@ -13,6 +13,7 @@ import {
   Sun,
   Moon,
   ShoppingBag,
+  Code2,
 } from 'lucide-react';
 import {
   JSONSPY_WEB_URL,
@@ -24,6 +25,8 @@ import {
   JSONSPY_DOWNLOAD_LINUX_DEB,
   JSONSPY_DOWNLOAD_MACOS_DMG,
   JSONSPY_DOWNLOAD_INTELLIJ_ZIP,
+  JSONSPY_VSCODE_URL,
+  JSONSPY_DOWNLOAD_VSCODE_VSIX,
 } from './constants/links';
 import { PrivacyModal } from './components/PrivacyModal';
 
@@ -125,7 +128,7 @@ export const App: React.FC = () => {
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed font-sans">
-            The ultimate Altova XMLSpy alternative for Web, Tauri Desktop, and IntelliJ Platform IDEs. Built with Monaco Editor, SmartFix syntax recovery, Ajv/NetworkNT schema validation, and Visual React Flow designer.
+            The ultimate Altova XMLSpy alternative for Web, Tauri Desktop, VS Code, and IntelliJ Platform IDEs. Built with Monaco Editor, SmartFix syntax recovery, Ajv/NetworkNT schema validation, and Visual React Flow designer.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
@@ -143,7 +146,7 @@ export const App: React.FC = () => {
               className="flex items-center px-6 py-3 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm shadow-sm transition"
             >
               <Download className="w-4 h-4 mr-2 text-sky-600 dark:text-sky-400" />
-              Download Desktop & Plugins
+              Download Desktop & Extensions
             </a>
           </div>
         </div>
@@ -154,10 +157,10 @@ export const App: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-3">Multi-Platform Ecosystem</h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">Download JSONSpy for your favorite operating system or IDE.</p>
+            <p className="text-slate-600 dark:text-slate-400 text-sm">Download JSONSpy for your favorite operating system, editor, or IDE.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Web */}
             <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-sky-500/50 transition group">
               <div>
@@ -175,6 +178,36 @@ export const App: React.FC = () => {
               >
                 Launch Web App
               </a>
+            </div>
+
+            {/* VS Code Extension */}
+            <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-sky-500/50 transition group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-950 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-600 dark:text-sky-400 mb-4 group-hover:scale-110 transition">
+                  <Code2 className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">VS Code Extension</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Custom editor for Visual Studio Code, Cursor, and VSCodium.</p>
+              </div>
+              <div className="space-y-2">
+                <a
+                  href={JSONSPY_VSCODE_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full flex items-center justify-center py-2 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs text-center shadow-md transition"
+                >
+                  <Download className="w-3.5 h-3.5 mr-1.5" />
+                  VS Marketplace
+                </a>
+                <a
+                  href={JSONSPY_DOWNLOAD_VSCODE_VSIX}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full block py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-[11px] text-center border border-slate-300 dark:border-slate-700 transition"
+                >
+                  Direct .vsix Package
+                </a>
+              </div>
             </div>
 
             {/* IntelliJ Plugin */}
@@ -226,25 +259,6 @@ export const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Linux */}
-            <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-amber-500/50 transition group">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4 group-hover:scale-110 transition">
-                  <Terminal className="w-6 h-6" />
-                </div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">Linux</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">Debian package (.deb) and AppImage for Ubuntu/Linux.</p>
-              </div>
-              <a
-                href={JSONSPY_DOWNLOAD_LINUX_DEB}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs text-center border border-slate-300 dark:border-slate-700 transition"
-              >
-                Download for Linux
-              </a>
-            </div>
-
             {/* macOS */}
             <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-emerald-500/50 transition group">
               <div>
@@ -261,6 +275,25 @@ export const App: React.FC = () => {
                 className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs text-center border border-slate-300 dark:border-slate-700 transition"
               >
                 Download for macOS
+              </a>
+            </div>
+
+            {/* Linux */}
+            <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-amber-500/50 transition group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4 group-hover:scale-110 transition">
+                  <Terminal className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">Linux</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">Debian package (.deb) and AppImage for Ubuntu/Linux.</p>
+              </div>
+              <a
+                href={JSONSPY_DOWNLOAD_LINUX_DEB}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs text-center border border-slate-300 dark:border-slate-700 transition"
+              >
+                Download for Linux
               </a>
             </div>
           </div>
