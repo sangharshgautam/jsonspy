@@ -1,0 +1,117 @@
+name: Release VS Code Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version without v prefix (leave blank to use version.txt)'
+        required: false
+        default: ''
+        type: string
+      publish_marketplace:
+        description: 'Publish directly to Visual Studio Marketplace'
+        required: true
+        default: true
+        type: boolean
+      publish_openvsx:
+        description: 'Publish to Open VSX Registry'
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - 'vscode-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release-vscode:
+    name: Build & Release VS Code Extension (.vsix)
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Determine Release Version
+        id: get-version
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            TARGET_VERSION="${{ inputs.version }}"
+          elif [[ "${{ github.ref }}" == refs/tags/vscode-v* ]]; then
+            TARGET_VERSION="${GITHUB_REF_NAME#vscode-v}"
+          else
+            TARGET_VERSION=$(cat version.txt | tr -d '[:space:]')
+          fi
+          echo "version=${TARGET_VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=vscode-v${TARGET_VERSION}" >> $GITHUB_OUTPUT
+          echo "Target Version: ${TARGET_VERSION}"
+
+      - name: Synchronize Version Across Project
+        shell: bash
+        run: |
+          echo "${{ steps.get-version.outputs.version }}" > version.txt
+          node scripts/sync_version.js
+
+      - name: Install Project Dependencies
+        run: npm ci
+
+      - name: Install VS Code Extension Dependencies
+        run: |
+          cd vscode-extension
+          npm ci
+
+      - name: Build Webview Assets & Extension Bundle
+        run: node scripts/build_vscode_extension.js
+
+      - name: Package VSIX
+        run: |
+          cd vscode-extension
+          npx @vscode/vsce package --no-dependencies
+
+      - name: Upload VSIX Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-vscode-extension-${{ steps.get-version.outputs.version }}
+          path: vscode-extension/*.vsix
+          if-no-files-found: error
+
+      - name: Publish to Visual Studio Marketplace
+        if: ${{ (inputs.publish_marketplace == true || github.event_name == 'push') && env.VS_MARKETPLACE_TOKEN != '' }}
+        env:
+          VS_MARKETPLACE_TOKEN: ${{ secrets.VS_MARKETPLACE_TOKEN }}
+        run: |
+          cd vscode-extension
+          npx @vscode/vsce publish --no-dependencies -p "$VS_MARKETPLACE_TOKEN"
+
+      - name: Publish to Open VSX Registry
+        if: ${{ inputs.publish_openvsx == true && env.OVSX_TOKEN != '' }}
+        env:
+          OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
+        run: |
+          npx ovsx publish vscode-extension/*.vsix -p "$OVSX_TOKEN"
+
+      - name: Attach VSIX to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: vscode-extension/*.vsix
+          tag_name: ${{ steps.get-version.outputs.tag }}
+          name: 'JSONSpy VS Code Extension v${{ steps.get-version.outputs.version }}'
+          body: |
+            ## JSONSpy VS Code Extension v${{ steps.get-version.outputs.version }}
+
+            ### Installation:
+            1. Download the attached `.vsix` file.
+            2. Run in terminal:
+               ```bash
+               code --install-extension jsonspy-${{ steps.get-version.outputs.version }}.vsix
+               ```
+            3. Right-click any `.json` file and select **Open With... -> JSONSpy Workbench**.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

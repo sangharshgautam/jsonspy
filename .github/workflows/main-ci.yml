@@ -242,7 +242,41 @@ jobs:
           name: jsonspy-intellij-plugin
           path: intellij-plugin/build/distributions/
 
-  # 7. Publish Web Test Results Report
+  # 7. Build VS Code Extension (.vsix)
+  build-vscode-extension:
+    name: Build & Package VS Code Extension (.vsix)
+    needs: build-frontend
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+      - name: Download Shared Frontend Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-dist
+          path: dist
+      - run: npm ci
+      - name: Install VS Code Extension Dependencies
+        run: |
+          cd vscode-extension
+          npm ci
+      - name: Bundle VS Code Webview & Extension
+        run: node scripts/build_vscode_extension.js
+      - name: Package VSIX
+        run: |
+          cd vscode-extension
+          npx @vscode/vsce package --no-dependencies
+      - name: Upload VS Code Extension Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonspy-vscode-extension
+          path: vscode-extension/*.vsix
+          if-no-files-found: error
+
+  # 8. Publish Web Test Results Report
   publish-web:
     name: Publish Web Test Results
     needs: build-web

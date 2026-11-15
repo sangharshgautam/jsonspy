@@ -22,4 +22,13 @@ const tauri = JSON.parse(fs.readFileSync(tauriPath, 'utf-8'));
 tauri.version = version;
 fs.writeFileSync(tauriPath, JSON.stringify(tauri, null, 2) + '\n');
 
-console.log('Successfully synchronized version across package.json and tauri.conf.json!');
+// 3. Update vscode-extension/package.json
+const vscodePkgPath = path.resolve('vscode-extension/package.json');
+if (fs.existsSync(vscodePkgPath)) {
+  const vscodePkg = JSON.parse(fs.readFileSync(vscodePkgPath, 'utf-8'));
+  vscodePkg.version = version;
+  fs.writeFileSync(vscodePkgPath, JSON.stringify(vscodePkg, null, 2) + '\n');
+}
+
+console.log('Successfully synchronized version across package.json, tauri.conf.json, and vscode-extension/package.json!');
+

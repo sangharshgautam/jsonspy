@@ -45,3 +45,9 @@ intellij-plugin/.gradle/
 intellij-plugin/.intellijPlatform/
 test-results/
 playwright-report/
+playwright-results/
+dist-msix/
+vscode-extension/dist/
+vscode-extension/media/
+vscode-extension/node_modules/
+*.vsix
