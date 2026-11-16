@@ -43,7 +43,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         uses: andykenward/github-actions-cloudflare-pages@v3.6.1
         with:
-          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          cloudflare-api-token: ${{ env.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
           projectName: 'jsonspy-25s'
           directory: 'dist'
