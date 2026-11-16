@@ -16,6 +16,7 @@
     "build:vscode": "node scripts/build_vscode_extension.js",
     "tauri": "tauri",
     "test": "vitest run --reporter=junit --outputFile=test-results/junit.xml",
+    "test:vscode": "vitest run vscode-extension/test --reporter=junit --outputFile=vscode-extension/test-results/junit.xml",
     "test:e2e": "playwright test"
   },
   "dependencies": {

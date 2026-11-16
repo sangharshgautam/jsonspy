@@ -12,7 +12,7 @@ export default defineConfig(async () => ({
     },
   },
   test: {
-    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'vscode-extension/test/**/*.spec.ts'],
     exclude: ['e2e/**/*', 'node_modules/**/*'],
   },
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
