@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "JSONSpy - Enterprise JSON & Schema Workbench",
+  "version": "1.0.3",
+  "description": "Enterprise JSON editing, validation, transformation, and visual schema modeling workbench for Microsoft Edge.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "sidePanel"
+  ],
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "action": {
+    "default_title": "Open JSONSpy Workbench"
+  },
+  "icons": {
+    "128": "icons/128x128.png"
+  }
+}

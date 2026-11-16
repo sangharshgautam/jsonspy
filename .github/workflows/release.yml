@@ -204,7 +204,7 @@ jobs:
           cd intellij-plugin
           ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN -Pversion=${{ needs.set-version.outputs.version }}
 
-  # 5. Build & Deploy Landing Page Website
+  # 5. Build & Deploy Landing Page Website to Azure Storage
   release-landing:
     name: Build & Deploy Landing Page
     needs: [set-version, release-intellij-plugin]
@@ -235,10 +235,33 @@ jobs:
               --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
               --overwrite true
 
+  # 5b. Deploy Web SPA to Cloudflare Pages
+  release-cloudflare:
+    name: Deploy Web SPA to Cloudflare Pages
+    needs: [set-version, release-intellij-plugin]
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy to Cloudflare Pages
+        if: secrets.CLOUDFLARE_API_TOKEN != ''
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'jsonspy-25s'
+          directory: 'dist'
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
   # 6. Automatically Create & Push Git Tag Upon Successful Release
   create-git-tag:
     name: Create & Push Git Tag
-    needs: [set-version, release-landing]
+    needs: [set-version, release-landing, release-cloudflare]
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
