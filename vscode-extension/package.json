@@ -82,7 +82,8 @@
   },
   "scripts": {
     "build": "node build.js",
-    "watch": "node build.js --watch"
+    "watch": "node build.js --watch",
+    "test": "vitest run test --reporter=junit --outputFile=test-results/junit.xml"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",

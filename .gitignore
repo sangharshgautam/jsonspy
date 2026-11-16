@@ -50,4 +50,5 @@ dist-msix/
 vscode-extension/dist/
 vscode-extension/media/
 vscode-extension/node_modules/
+vscode-extension/test-results/
 *.vsix
