@@ -45,6 +45,6 @@ jobs:
         with:
           cloudflare-api-token: ${{ env.CLOUDFLARE_API_TOKEN }}
           cloudflare-account-id: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: 'jsonspy-25s'
+          cloudflare-project-name: 'jsonspy-25s'
           directory: 'dist'
           github-token: ${{ secrets.GITHUB_TOKEN }}
