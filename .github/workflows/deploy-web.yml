@@ -48,3 +48,4 @@ jobs:
           cloudflare-project-name: 'jsonspy-25s'
           directory: 'dist'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-environment: ${{ (github.ref == 'refs/heads/main' && 'production') || 'preview' }}
