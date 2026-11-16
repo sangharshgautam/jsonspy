@@ -37,11 +37,14 @@ jobs:
               --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
               --overwrite true
       - name: Deploy Web SPA to Cloudflare Pages
-        if: secrets.CLOUDFLARE_API_TOKEN != ''
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         uses: cloudflare/pages-action@v1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
           projectName: 'jsonspy-25s'
           directory: 'dist'
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
