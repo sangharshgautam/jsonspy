@@ -1,4 +1,4 @@
-name: Feature Branch CI (Web SPA Build & Test)
+name: Build Feature (Web SPA Build & Test)
 
 on:
   push:
