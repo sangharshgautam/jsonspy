@@ -37,10 +37,9 @@ jobs:
               --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
               --overwrite true
       - name: Deploy Web SPA to Cloudflare Pages
-        if: env.CLOUDFLARE_API_TOKEN != ''
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        if: secrets.CLOUDFLARE_API_TOKEN != ''
         uses: cloudflare/wrangler-action@v3
         with:
-          command: pages deploy dist --project-name=jsonspy-25s
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=jsonspy-25s --commit-dirty=true
