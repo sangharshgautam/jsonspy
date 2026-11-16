@@ -1,4 +1,4 @@
-name: Manual Release Pipeline (Desktop Installers, IntelliJ Plugin & Landing Page)
+name: Manual Release Pipeline (Desktop Installers, Web SPA, IntelliJ Plugin & Landing Page)
 
 on:
   workflow_dispatch:
@@ -154,7 +154,36 @@ jobs:
               --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
               --overwrite true
 
-  # 4. Build and Attach IntelliJ Plugin Zip & Publish to JetBrains Marketplace
+  # 4. Build and Release Web SPA to Azure Storage
+  release-web:
+    name: Build & Deploy Web SPA
+    needs: [set-version, build-frontend]
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+      - name: Download Shared Frontend Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-dist
+          path: dist
+      - name: Deploy Web SPA to Azure Storage ($web container)
+        if: env.AZURE_STORAGE_CONNECTION_STRING != ''
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination '$web' \
+              --source dist/ \
+              --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
+              --overwrite true
+
+  # 5. Build and Attach IntelliJ Plugin Zip & Publish to JetBrains Marketplace
   release-intellij-plugin:
     name: Build & Release IntelliJ Plugin
     needs: [set-version, upload-azure-msi]
@@ -204,7 +233,7 @@ jobs:
           cd intellij-plugin
           ./gradlew publishPlugin -PpublishToken=$JETBRAINS_MARKETPLACE_TOKEN -Pversion=${{ needs.set-version.outputs.version }}
 
-  # 5. Build & Deploy Landing Page Website to Azure Storage
+  # 6. Build & Deploy Landing Page Website to Azure Storage
   release-landing:
     name: Build & Deploy Landing Page
     needs: [set-version, release-intellij-plugin]
@@ -235,7 +264,7 @@ jobs:
               --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
               --overwrite true
 
-  # 5b. Deploy Web SPA to Cloudflare Pages
+  # 7. Deploy Web SPA to Cloudflare Pages
   release-cloudflare:
     name: Deploy Web SPA to Cloudflare Pages
     needs: [set-version, release-intellij-plugin]
@@ -258,10 +287,10 @@ jobs:
           directory: 'dist'
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
-  # 6. Automatically Create & Push Git Tag Upon Successful Release
+  # 8. Automatically Create & Push Git Tag Upon Successful Release
   create-git-tag:
     name: Create & Push Git Tag
-    needs: [set-version, release-landing, release-cloudflare]
+    needs: [set-version, release-landing, release-cloudflare, release-web]
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
@@ -275,7 +304,7 @@ jobs:
           git tag -a "$TAG" -m "Automated Release $TAG via Manual Release Pipeline" || true
           git push origin "$TAG" || true
 
-  # 7. Automatically Bump version.txt for Next Development Cycle
+  # 9. Automatically Bump version.txt for Next Development Cycle
   bump-next-version:
     name: Bump version.txt for Next Development Cycle
     needs: create-git-tag

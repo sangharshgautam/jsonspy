@@ -1,0 +1,39 @@
+name: Deploy Landing Page Manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., 1.0.3)'
+        required: true
+        default: '1.0.3'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-landing:
+    name: Build & Deploy Landing Page
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+      - run: npm ci
+      - name: Build Landing Page
+        run: node scripts/build_intellij_plugin.js || npm run build:landing
+      - name: Deploy Landing Page to Azure Storage ($web container)
+        if: env.AZURE_STORAGE_CONNECTION_STRING != ''
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination '$web' \
+              --source landing/dist/ \
+              --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
+              --overwrite true
