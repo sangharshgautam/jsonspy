@@ -41,11 +41,10 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        uses: andykenward/github-actions-cloudflare-pages@v3.6.1
+        uses: cloudflare/pages-action@v1
         with:
-          cloudflare-api-token: ${{ env.CLOUDFLARE_API_TOKEN }}
-          cloudflare-account-id: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
-          cloudflare-project-name: 'jsonspy-25s'
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'jsonspy-25s'
           directory: 'dist'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-environment: 'production'
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
