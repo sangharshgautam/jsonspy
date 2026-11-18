@@ -1,6 +1,7 @@
 import React from 'react';
 import { ViewMode } from '../types/jsonspy';
 import { ShieldCheck, FileCode, Monitor, Sparkles } from 'lucide-react';
+import { JSONSPY_VERSION } from '../constants/links';
 
 interface StatusBarProps {
   filePath?: string;
@@ -20,7 +21,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
       <div className="flex items-center space-x-4">
         <span className="flex items-center text-sky-600 dark:text-sky-400 font-bold">
           <Sparkles className="w-3.5 h-3.5 mr-1" />
-          JSONSpy v1.0.2
+          JSONSpy v{JSONSPY_VERSION}
         </span>
 
         <span className="text-slate-300 dark:text-slate-600">|</span>

@@ -1,3 +1,4 @@
+export const JSONSPY_VERSION = '1.0.3';
 export const JSONSPY_WEB_URL = 'https://jsonspy-25s.pages.dev/';
 export const JSONSPY_GITHUB_URL = 'https://github.com/sangharshgautam/jsonspy';
 export const JSONSPY_RELEASES_URL = 'https://github.com/sangharshgautam/jsonspy/releases';
@@ -6,6 +7,7 @@ export const JSONSPY_MS_STORE_URL = 'https://apps.microsoft.com/search?query=jso
 export const JSONSPY_SUPPORT_EMAIL = 'support.jsonspy@gmail.com';
 export const JSONSPY_VSCODE_URL = 'https://marketplace.visualstudio.com/items?itemName=sangharshgautam.jsonspy-vscode';
 export const JSONSPY_EDGE_EXTENSION_URL = 'https://microsoftedge.microsoft.com/addons';
+export const JSONSPY_JETBRAINS_MARKETPLACE_URL = 'https://plugins.jetbrains.com/search?search=jsonspy';
 
 // Direct Azure Storage Web Container Download Links (v1.0.3 MSI, MSIX & Releases)
 export const JSONSPY_DOWNLOAD_WINDOWS_MSI = 'https://jsonspyrepo.z33.web.core.windows.net/JSONSpy_1.0.3_x64.msi';
