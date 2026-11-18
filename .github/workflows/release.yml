@@ -29,8 +29,8 @@ jobs:
     needs: set-version
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -58,9 +58,9 @@ jobs:
             artifact_glob: 'src-tauri/target/release/bundle/dmg/*.dmg'
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -135,7 +135,7 @@ jobs:
     needs: [set-version, release-desktop]
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - name: Download Windows Desktop Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -160,8 +160,8 @@ jobs:
     needs: [set-version, build-frontend]
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -189,9 +189,9 @@ jobs:
     needs: [set-version, upload-azure-msi]
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -239,9 +239,9 @@ jobs:
     needs: [set-version, release-intellij-plugin]
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -270,8 +270,8 @@ jobs:
     needs: [set-version, release-intellij-plugin]
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
