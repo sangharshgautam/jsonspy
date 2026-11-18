@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('JSONSpy Workbench loads and displays version badge', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByText('JSONSpy v1.0.2')).toBeVisible();
+  await expect(page.getByText('JSONSpy v1.0.3')).toBeVisible();
 });
 
 test('Switch between workbench views', async ({ page }) => {
